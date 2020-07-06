@@ -5,7 +5,7 @@ import "./App.css";
 import { Row, Col, Input, Button, Spin } from 'antd';
 import { Transactor } from "./helpers"
 import { useExchangePrice, useGasPrice, useContractLoader, useContractReader } from "./hooks"
-import { Header, Account, Provider, Faucet, Ramp, Address } from "./components"
+import { Header, Account, Provider, Faucet, Ramp, Address, Contract } from "./components"
 const { TextArea } = Input;
 const { BufferList } = require('bl')
 
@@ -79,7 +79,6 @@ function App() {
     }
   }
 
-
   const asyncGetAttestation = async ()=>{
     let result = await getFromIPFS(myAttestation)
     setAttestationContents(result.toString())
@@ -109,8 +108,6 @@ function App() {
     }
   }
 
-
-
   return (
     <div className="App">
       <Header />
@@ -126,7 +123,7 @@ function App() {
         />
       </div>
 
-      <div style={{padding:40,textAlign: "left"}}>
+      <div style={{padding:32,textAlign: "left"}}>
         Enter a bunch of data:
         <TextArea rows={10} value={data} onChange={(e)=>{
           setData(e.target.value)
@@ -145,8 +142,7 @@ function App() {
         }}>Upload to IPFS</Button>
       </div>
 
-
-      <div style={{padding:40,textAlign: "left"}}>
+      <div style={{padding:32,textAlign: "left"}}>
         IPFS Hash: <Input value={ipfsHash} onChange={(e)=>{
           setIpfsHash(e.target.value)
         }} />
@@ -157,11 +153,17 @@ function App() {
         }}>Attest to this hash on Ethereum</Button>
       </div>
 
-      <div style={{padding:40,textAlign: "left"}}>
+      <div style={{padding:32,textAlign: "left"}}>
         {attestationDisplay}
       </div>
 
-
+      {/*<div style={{padding:64,textAlign: "left"}}>
+        <Contract
+          name={"Attestor"}
+          provider={injectedProvider}
+          address={address}
+        />
+      </div>*/}
 
       <div style={{position:'fixed',textAlign:'right',right:0,bottom:20,padding:10}}>
         <Row align="middle" gutter={4}>
@@ -191,10 +193,7 @@ function App() {
             />
           </Col>
         </Row>
-
-
       </div>
-
     </div>
   );
 }
