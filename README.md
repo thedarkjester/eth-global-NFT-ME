@@ -39,9 +39,12 @@ Development Phases as I see them: ( each step is contract + UI )
 11. tests
 12. assign stage step ( current person can assign next from list of suppliers)
 13. tests
-14. accept stage ( next assignd address accepts responsibility for the stage )
-15. transfer ( only onces all stages are complete )
-16. set max mintable (e.g. limited edition cars)
+14. accept stage ( next assigned address accepts responsibility for the stage )
+15. accept stage with payment (allocates to the previous stage owner)
+16. transfer ( only onces all stages are complete )
+17. set max mintable (e.g. limited edition cars)
+18. tests
+19. withdraw funds as a stage participant or owner (see point 5 in previous list)
 
 Simple example:
 Build a car: 
