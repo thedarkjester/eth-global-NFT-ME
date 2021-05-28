@@ -41,7 +41,7 @@ describe("SupplyChainFactory tests", function () {
     });
 
     describe("Owner adds supply chain", function () {
-      it("Should have an owner equal to the deployer", async function () {
+      it("adds and returns the supply chain in the list", async function () {
         let txResponse = await supplyChainFactoryInstance.addSupplyChain('MyName', 'test', 10);
 
         let supplyChains = await supplyChainFactoryInstance.getSupplyChainList();
