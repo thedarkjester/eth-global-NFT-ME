@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import { ethers } from "ethers";
 import "./App.css";
-import { Row, Col, Input, Button, Spin } from "antd";
+import { Row, Col } from "antd";
 import { EuiBottomBar } from "@elastic/eui";
 
 import { Transactor } from "./helpers";
@@ -13,6 +13,7 @@ import {
   useGasPrice,
   useContractLoader,
   useContractReader,
+  useEventListener,
 } from "./hooks";
 import {
   Header,
@@ -47,6 +48,14 @@ function App() {
   const readContracts = useContractLoader(localProvider);
   const writeContracts = useContractLoader(injectedProvider);
 
+  const newSupplyChainEvents = useEventListener(
+    readContracts,
+    "SupplyChainFactory",
+    "SupplyChainCreated",
+    localProvider,
+    1
+  );
+
   return (
     <div className="App">
       <Header>
@@ -62,11 +71,9 @@ function App() {
       </Header>
 
       <Router>
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
         <Switch>
           <Route path="/supply-chain">
-            <MainSupplyChain />
+            <MainSupplyChain newSupplyChainEvents={newSupplyChainEvents} />
           </Route>
           <Route path="/ipfs">
             {
@@ -93,13 +100,6 @@ function App() {
         }}
       ></div>
 
-      {/*<div style={{padding:64,textAlign: "left"}}>
-        <Contract
-          name={"Attestor"}
-          provider={injectedProvider}
-          address={address}
-        />
-      </div>*/}
       <EuiBottomBar style={{ backgroundColor: "#fff" }}>
         <div
           style={{
