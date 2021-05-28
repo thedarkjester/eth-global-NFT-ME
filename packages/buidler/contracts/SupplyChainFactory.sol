@@ -19,6 +19,7 @@ contract SupplyChainFactory is AccessControl {
     /// @return addresses array
     function getSupplyChainList()
         public
+        view
         returns (string[] memory names, address[] memory addresses)
     {
         string[] memory safeNames = new string[](_supplyChains.length);

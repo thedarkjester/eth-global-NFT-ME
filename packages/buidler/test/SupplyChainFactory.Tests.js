@@ -2,6 +2,10 @@ const {
   catchRevert
 } = require("./exceptionsHelper");
 
+const {
+  emptyAddress
+} = require("./sharedFunctions");
+
 const SupplyChainFactory = artifacts.require("SupplyChainFactory");
 const SupplyChainAsNFT = artifacts.require("SupplyChainAsNFT");
 
@@ -42,7 +46,11 @@ describe("SupplyChainFactory tests", function () {
 
         let supplyChains = await supplyChainFactoryInstance.getSupplyChainList();
 
-        console.log(supplyChains);
+        assert.equal(supplyChains.names.length, 1);
+        assert.equal(supplyChains.addresses.length, 1);
+
+        assert.notEqual(supplyChains.addresses[0], emptyAddress);
+        assert.notEqual(supplyChains.names[0], "");
       });
     });
 
