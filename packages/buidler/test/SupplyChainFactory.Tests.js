@@ -7,7 +7,6 @@ const {
 } = require("./sharedFunctions");
 
 const SupplyChainFactory = artifacts.require("SupplyChainFactory");
-const SupplyChainAsNFT = artifacts.require("SupplyChainAsNFT");
 
 describe("SupplyChainFactory tests", function () {
   let accounts;
@@ -21,13 +20,13 @@ describe("SupplyChainFactory tests", function () {
       supplyChainFactoryInstance = await SupplyChainFactory.new();
     });
 
-    describe("in owner role", function () {
-      it("Should have an owner equal to the deployer", async function () {
+    describe("not in owner role", function () {
+      it("Should not have an owner equal to the deployer", async function () {
         assert.isFalse(await supplyChainFactoryInstance.hasRole('0x00', accounts[1]));
       });
     });
 
-    describe("not in owner role", function () {
+    describe("in owner role", function () {
       it("Should have an owner equal to the deployer", async function () {
         assert.isTrue(await supplyChainFactoryInstance.hasRole('0x00', accounts[0]));
       });
@@ -52,7 +51,6 @@ describe("SupplyChainFactory tests", function () {
 
         assert.equal(supplyChains.addresses.length, 1);
         assert.notEqual(supplyChains.addresses[0], emptyAddress);
-
       });
     });
 

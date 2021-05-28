@@ -1,11 +1,9 @@
 pragma solidity >=0.6.0 <0.7.0;
 
-import "@openzeppelin/contracts/deploy-ready/ERC721MinterPauser.sol";
+import "./ERC721MinterPauser.sol";
 
 contract SupplyChainAsNFT is ERC721MinterPauser {
     event TokenLimitSet(uint256 tokenLimit);
-
-    uint256 public _tokenLimit = 1;
 
     bool private tokenLimitSet;
 
