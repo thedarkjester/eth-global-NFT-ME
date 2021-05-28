@@ -1544,6 +1544,11 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.0.0-rc.1.tgz#83137fa429f6cbfa5fc66a9cddd7b5f1c054b36e"
   integrity sha512-ltTR/wlkQvVL1ucenP9mSXGTIBlyHHwST7sM9X1lTvf6HwtdC/TJ/phukfni++RgN+Qsl7Aoa7rhvTMB6dAquA==
 
+"@openzeppelin/contracts@^4.1.0":
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.1.0.tgz#baec89a7f5f73e3d8ea582a78f1980134b605375"
+  integrity sha512-TihZitscnaHNcZgXGj9zDLDyCqjziytB4tMCwXq0XimfWkAjBYyk5/pOsDbbwcavhlc79HhpTEpQcrMnPVa1mw==
+
 "@ramp-network/ramp-instant-sdk@^1.8.1":
   version "1.8.1"
   resolved "https://registry.yarnpkg.com/@ramp-network/ramp-instant-sdk/-/ramp-instant-sdk-1.8.1.tgz#ff2d2db6126892d49e0ee4659a741cdfabbc2a48"
