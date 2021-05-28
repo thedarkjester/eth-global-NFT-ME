@@ -1,7 +1,7 @@
 {
   "name": "@uniswap-v1-app/react-app",
   "version": "1.0.0",
-  "homepage":".",
+  "homepage": ".",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.3",
+    "@elastic/eui": "^34.1.0",
     "@ramp-network/ramp-instant-sdk": "^1.8.1",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",

@@ -1,3 +1,5 @@
+.secrets
+.env
 
 **/aws.json
 
