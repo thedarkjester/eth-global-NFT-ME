@@ -1,16 +1,29 @@
-import React from 'react'
-import { PageHeader } from 'antd';
+import React from "react";
+import { PageHeader } from "antd";
+import {
+  EuiHeader,
+  EuiHeaderSection,
+  EuiHeaderSectionItem,
+} from "@elastic/eui";
 
 export default function Header(props) {
   return (
-    <div onClick={()=>{
-      window.open("https://github.com/austintgriffith/scaffold-eth");
-    }}>
-      <PageHeader
-        title="📣 Attestor"
-        subTitle="a 🏗 Scaffold-ETH example app for IPFS"
-        style={{cursor:'pointer'}}
-      />
-    </div>
+    <>
+      <EuiHeader>
+        <EuiHeaderSection grow={false}>
+          <EuiHeaderSectionItem border="right">
+            <PageHeader
+              title="NFT-ME"
+              subTitle=""
+              style={{ cursor: "pointer" }}
+            />
+          </EuiHeaderSectionItem>
+        </EuiHeaderSection>
+
+        <EuiHeaderSection side="right">
+          <EuiHeaderSectionItem>{props.children}</EuiHeaderSectionItem>
+        </EuiHeaderSection>
+      </EuiHeader>
+    </>
   );
 }

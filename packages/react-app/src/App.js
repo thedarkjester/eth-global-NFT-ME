@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+
 import "antd/dist/antd.css";
 import { ethers } from "ethers";
 import "./App.css";
@@ -19,8 +21,7 @@ import {
   Address,
   Contract,
 } from "./components";
-
-import { EuiButton } from "@elastic/eui";
+import MainSupplyChain from "./components/Pages/SupplyChain/MainSupplyChain";
 
 const { TextArea } = Input;
 const { BufferList } = require("bl");
@@ -150,17 +151,7 @@ function App() {
 
   return (
     <div className="App">
-      <EuiButton>Hello</EuiButton>
-      <Header />
-      <div
-        style={{
-          position: "fixed",
-          textAlign: "right",
-          right: 0,
-          top: 0,
-          padding: 10,
-        }}
-      >
+      <Header>
         <Account
           address={address}
           setAddress={setAddress}
@@ -170,7 +161,29 @@ function App() {
           mainnetProvider={mainnetProvider}
           price={price}
         />
-      </div>
+      </Header>
+
+      <Router>
+        {/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+        <Switch>
+          <Route path="/supply-chain">
+            <MainSupplyChain />
+          </Route>
+          <Route path="/info">{/* <Users /> */}</Route>
+          <Route path="/">{/* <Home /> */}</Route>
+        </Switch>
+      </Router>
+
+      <div
+        style={{
+          position: "fixed",
+          textAlign: "right",
+          right: 0,
+          top: 0,
+          padding: 10,
+        }}
+      ></div>
 
       <div style={{ padding: 32, textAlign: "left" }}>
         Enter a bunch of data:
