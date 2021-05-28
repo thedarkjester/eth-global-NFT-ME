@@ -4,6 +4,7 @@ import {
   EuiHeader,
   EuiHeaderSection,
   EuiHeaderSectionItem,
+  EuiHeaderLink,
 } from "@elastic/eui";
 
 export default function Header(props) {
@@ -12,11 +13,19 @@ export default function Header(props) {
       <EuiHeader>
         <EuiHeaderSection grow={false}>
           <EuiHeaderSectionItem border="right">
-            <PageHeader
-              title="NFT-ME"
-              subTitle=""
-              style={{ cursor: "pointer" }}
-            />
+            <EuiHeaderLink href="/">
+              <PageHeader
+                title="NFT-ME"
+                subTitle=""
+                style={{ cursor: "pointer" }}
+              />
+            </EuiHeaderLink>
+          </EuiHeaderSectionItem>
+          <EuiHeaderSectionItem style={{ paddingLeft: 15 }}>
+            <EuiHeaderLink href="/supply-chain">Supply Chain</EuiHeaderLink>
+          </EuiHeaderSectionItem>
+          <EuiHeaderSectionItem style={{ paddingLeft: 15 }}>
+            <EuiHeaderLink href="/ipfs">IPFS</EuiHeaderLink>
           </EuiHeaderSectionItem>
         </EuiHeaderSection>
 
