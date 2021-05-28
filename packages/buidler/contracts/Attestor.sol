@@ -5,9 +5,9 @@ import "@nomiclabs/buidler/console.sol";
 contract Attestor {
 
   mapping (address => string) public attestations;
-
+  //which 
   function attest(string memory hash) public {
-    console.log(msg.sender,"attests to",hash);
+    console.log(msg.sender,"at to",hash);
     emit Attest(msg.sender,hash);
     attestations[msg.sender] = hash;
   }

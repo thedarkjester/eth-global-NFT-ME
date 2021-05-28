@@ -188,7 +188,7 @@ function App() {
           shape="round"
           type="primary"
           onClick={async () => {
-            console.log("UPLOADING...");
+            console.log("UPLONG...");
             setSending(true);
             setIpfsHash();
             setIpfsContents();

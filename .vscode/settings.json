@@ -3,8 +3,8 @@
     "titleBar.activeBackground": "#44c77f",
     "titleBar.inactiveBackground": "#44c77f",
     "titleBar.activeForeground": "#fff",
-    "titleBar.inactiveForeground": "#fff",
-    "tab.inactiveBackground": "#c9c8c8"
+    "titleBar.inactiveForeground": "#fff"
+    // "tab.inactiveBackground": "#c9c8c8"
   },
   "editor.formatOnSave": true
 }
