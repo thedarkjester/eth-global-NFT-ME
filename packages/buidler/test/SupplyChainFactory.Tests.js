@@ -47,10 +47,12 @@ describe("SupplyChainFactory tests", function () {
         let supplyChains = await supplyChainFactoryInstance.getSupplyChainList();
 
         assert.equal(supplyChains.names.length, 1);
-        assert.equal(supplyChains.addresses.length, 1);
-
-        assert.notEqual(supplyChains.addresses[0], emptyAddress);
         assert.notEqual(supplyChains.names[0], "");
+        assert.equal(supplyChains.names[0], "MyName");
+
+        assert.equal(supplyChains.addresses.length, 1);
+        assert.notEqual(supplyChains.addresses[0], emptyAddress);
+
       });
     });
 
