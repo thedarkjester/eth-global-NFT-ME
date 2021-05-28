@@ -1,1 +1,1 @@
-module.exports = ["Attestor"]
+module.exports = ["Attestor","SupplyChainFactory"]
