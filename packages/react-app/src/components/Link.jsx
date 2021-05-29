@@ -4,12 +4,12 @@ import { Link } from "react-router-dom";
 import { EuiHeaderLink, EuiLink } from "@elastic/eui";
 
 const AppLink = ({ isHeaderLink = false, to, title }) => {
-  const euiLinkType = isHeaderLink ? EuiHeaderLink : EuiLink;
+  const EuiLinkType = isHeaderLink ? EuiHeaderLink : EuiLink;
 
   return (
-    <euiLinkType>
+    <EuiLinkType>
       <Link to={to}>{title}</Link>
-    </euiLinkType>
+    </EuiLinkType>
   );
 };
 
