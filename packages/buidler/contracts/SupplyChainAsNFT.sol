@@ -8,8 +8,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     using SafeMath for uint256;
 
     event TokenLimitSet(uint256 tokenLimit);
+
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
+
     event SupplierAdded(uint256 stage, address addr);
     event SupplierPaid(
         address indexed supplier,
@@ -76,27 +78,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     {
         state = _tokenStageStates[token][stage];
     }
-
-    // The idea here is:
-    // factory creates this contract (creator is owner)
-    // stages are added
-    // addresses are added to stages for approving
-    // addresses are added to stages for suppliers/workers
-    // tokens are minted
-    // each token uses the template address data for suppliers to assign/approve
-
-    // ROB MISSING FUNCTIONS: Store IPFS data per token->stage + list function
-
-    // ROB missing - function assignSupplier() {} - ROB this will assign the supplier to the stage with their fee (can be 0) - has to be in the list of stage suppliers
-    // can't reassign (for now)
-
-    // ROB - Withdraw balance (Address checking their balance in stored mapping - not there yet)
-    // ROB function signStage(token, stage, addressOfNextSupplier, fee) {} - ROB - only the currently assigned signatory can sign (e.g. I requested it)
-    // completes current stage, assigns supplier for next stage with fee
-    // can't sign stage without paying the fee if it is required
-    // needs to be allocated to the supplier balances mapping(address=>uint256)
-    // if this is the final stage being signed, then the last stage is just marked as complete
-    // we should now be allowed to transfer the NFT :D
 
     function startStage(
         uint256 token,
