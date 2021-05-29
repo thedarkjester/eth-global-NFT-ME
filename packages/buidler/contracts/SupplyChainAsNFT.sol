@@ -13,8 +13,13 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     mapping(uint256 => ChainStage) public _chainStages;
 
     mapping(uint256 => address[]) public _chainStageSignatories;
+    mapping(uint256 => address[]) public _chainStageSuppliers;
+
     mapping(uint256 => mapping(address => bool))
         public _chainStageSignatoriesExist;
+
+    mapping(uint256 => mapping(address => bool))
+        public _chainStageSuppliersExist;
 
     // tokenId -> stage->complete
     mapping(uint256 => mapping(uint256 => ChainStageState)) tokenStageStates;
@@ -25,15 +30,41 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     struct ChainStageState {
-        bool isComplete;
-        address signer;
+        uint256 supplierFee;
         bool hasStarted;
+        bool isComplete;
+        address supplier;
+        address signer;
     }
 
     constructor(string memory name, string memory symbol)
         public
         ERC721MinterPauser(name, symbol)
     {}
+
+    // The idea here is:
+    // factory creates this contract (creator is owner)
+    // stages are added
+    // addresses are added to stages for approving
+    // addresses are added to stages for suppliers/workers
+    // tokens are minted
+    // each token uses the template address data for suppliers to assign/approve
+
+    // ROB MISSING FUNCTIONS: Store IPFS data per token->stage + list function
+
+    // ROB see these two in the ERC721MinterPauser FOR REFERENCE
+    // uint256 internal _tokenLimit = 1;
+    // uint256 internal currentTokenMintCount = 0;
+
+    // ROB missing - function assignSupplier() {} - ROB this will assign the supplier to the stage with their fee (can be 0) - has to be in the list of stage suppliers
+    // can't reassign (for now)
+
+    // ROB function signStage(tokenId, stage, addressOfNextSupplier, fee) {} - ROB - only the currently assigned signatory can sign (e.g. I requested it)
+    // completes current stage, assigns supplier for next stage with fee
+    // can't sign stage without paying the fee if it is required
+    // needs to be allocated to the supplier balances mapping(address=>uint256)
+    // if this is the final stage being signed, then the last stage is just marked as complete
+    // we should now be allowed to transfer the NFT :D
 
     function assignStage(
         uint256 tokenId,
@@ -58,6 +89,8 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             _chainStageSignatoriesExist[stage][assignee],
             "assignee is not in the collection of signatories"
         );
+
+        //ROB: - This needs to set the address of who is signing the state (aka the approver)
     }
 
     function getStages() public view returns (string[] memory stages) {
@@ -92,6 +125,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             ) return false;
         }
         return true;
+    }
+
+    function addStageSupplier(uint256 stage, address addr) public {
+        // ROB - similar to signatories - tests and logic apply
     }
 
     function addStageSignatory(uint256 stage, address addr) public {
