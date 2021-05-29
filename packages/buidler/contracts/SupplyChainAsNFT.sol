@@ -25,6 +25,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     struct ChainStageState {
         bool isComplete;
         address signer;
+        bool hasStarted;
     }
 
     constructor(string memory name, string memory symbol)
@@ -108,6 +109,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function setTokenLimit(uint256 tokenLimit) public {
+        require(tokenLimit > 0, "You can't set the number less than one");
         require(
             tokenLimitSet == false,
             "You can't set the limit more than once"
@@ -128,8 +130,11 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         address to,
         uint256 tokenId
     ) internal override(ERC721MinterPauser) {
-        if (_stageCount > 0) {
-            require(tokenStageStates[tokenId][_stageCount].isComplete);
+        if (_stageCount > 0 && tokenStageStates[tokenId][0].hasStarted) {
+            require(
+                tokenStageStates[tokenId][_stageCount].isComplete,
+                "not all stages are complete"
+            );
         }
 
         super._beforeTokenTransfer(from, to, tokenId);
