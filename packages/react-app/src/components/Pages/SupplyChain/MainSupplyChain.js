@@ -20,22 +20,21 @@ export default function MainSupplyChain(props) {
   const [data, setData] = useState({ name: "", symbol: "", tokenLimit: 0 });
   const [contracts, setContracts] = useState([]);
 
-  if (!writeContracts) return "Loading..";
-  // useEffect(() => {
-  async function contracts2() {
-    return await writeContracts["SupplyChainFactory"].getSupplyChainList();
-  }
-  contracts2().then((i) => {
-    const names = i.names;
-    const address = i.addresses;
-    const tableFormat = [];
-    for (let x = 0; x < i[0].length; x++) {
-      const d = { name: names[x], address: address[x] };
-      tableFormat.push(d);
+  useEffect(() => {
+    async function contracts2() {
+      return await writeContracts["SupplyChainFactory"].getSupplyChainList();
     }
-    setContracts(tableFormat);
-  });
-  // }, []);
+    contracts2().then((i) => {
+      const names = i.names;
+      const address = i.addresses;
+      const tableFormat = [];
+      for (let x = 0; x < i[0].length; x++) {
+        const d = { name: names[x], address: address[x] };
+        tableFormat.push(d);
+      }
+      setContracts(tableFormat);
+    });
+  }, [contracts, writeContracts]);
 
   const columns = [
     {
@@ -52,6 +51,7 @@ export default function MainSupplyChain(props) {
       render: (item) => <EuiLink href={`/contract/${item}`}>{item}</EuiLink>,
     },
   ];
+  if (!writeContracts) return "Loading..";
 
   return (
     <Container>
@@ -107,13 +107,11 @@ export default function MainSupplyChain(props) {
             </EuiFormRow>
           </EuiForm>
         </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiFlexGroup>
         <EuiFlexItem>
           <EuiBasicTable
             columns={columns}
             items={contracts}
-            style={{ marginLeft: 40, marginTop: 30 }}
+            style={{ marginLeft: 40, marginTop: 30, width: "100%" }}
           />
         </EuiFlexItem>
       </EuiFlexGroup>

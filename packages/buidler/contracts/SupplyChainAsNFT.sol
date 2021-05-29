@@ -11,6 +11,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
+    event StageAdded(uint256 id, string name);
 
     event TokenStageDocumentAdded(
         uint256 token,
@@ -244,6 +245,32 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         stages = safeStages;
     }
 
+    // /// @notice Retrieves a list of all the stage id, name, address
+    // /// @return names array
+    // /// @return addresses array
+    // function getStageData()
+    //     public
+    //     view
+    //     returns (string[] memory names, uint256[] memory ids)
+    // {
+
+    //     string[] memory safeNames = new string[](_chainStages.length);
+    //     uint256[] memory ids = new uint256[](_chainStages.length);
+
+    //     for (uint256 i = 0; i < _chainStages.length; i++) {
+    //         if (!isSafeString(_supplyChains[i].name())) {
+    //             safeNames[i] = "***";
+    //         } else {
+    //             safeNames[i] = _supplyChains[i].name();
+    //         }
+
+    //         workingAddresses[i] = address(_supplyChains[i]);
+    //     }
+
+    //     names = safeNames;
+    //     addresses = workingAddresses;
+    // }
+
     function addStageSupplier(uint256 stage, address addr) public {
         require(
             hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
@@ -281,7 +308,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         _chainStages[_stageCount].id = _stageCount + 1;
         _chainStages[_stageCount].name = name;
-
+        emit StageAdded(_stageCount + 1, name);
         _stageCount++;
     }
 
