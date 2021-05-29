@@ -119,7 +119,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         for (uint256 token = 1; token <= totalSupply; token++) {
             for (uint256 stage = 1; stage <= _stageCount; stage++) {
-                if (_tokenStageStates[token][stage].signatory == _msgSender()) {
+                if (
+                    _tokenStageStates[token][stage].signatory == _msgSender() &&
+                    !_tokenStageStates[token][stage].isComplete
+                ) {
                     resultCount++;
                 }
             }
@@ -136,7 +139,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         for (uint256 token = 1; token <= totalSupply; token++) {
             for (uint256 stage = 1; stage <= _stageCount; stage++) {
-                if (_tokenStageStates[token][stage].signatory == _msgSender()) {
+                if (
+                    _tokenStageStates[token][stage].signatory == _msgSender() &&
+                    !_tokenStageStates[token][stage].isComplete
+                ) {
                     results[index].stage = stage;
                     results[index].token = token;
                     results[index].supplierFee = _tokenStageStates[token][stage]
@@ -160,7 +166,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         for (uint256 token = 1; token <= totalSupply; token++) {
             for (uint256 stage = 1; stage <= _stageCount; stage++) {
-                if (_tokenStageStates[token][stage].supplier == _msgSender()) {
+                if (
+                    _tokenStageStates[token][stage].supplier == _msgSender() &&
+                    !_tokenStageStates[token][stage].isComplete
+                ) {
                     resultCount++;
                 }
             }
@@ -177,7 +186,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         for (uint256 token = 1; token <= totalSupply; token++) {
             for (uint256 stage = 1; stage <= _stageCount; stage++) {
-                if (_tokenStageStates[token][stage].supplier == _msgSender()) {
+                if (
+                    _tokenStageStates[token][stage].supplier == _msgSender() &&
+                    !_tokenStageStates[token][stage].isComplete
+                ) {
                     results[index].stage = stage;
                     results[index].token = token;
                     results[index].supplierFee = _tokenStageStates[token][stage]

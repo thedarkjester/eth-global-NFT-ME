@@ -203,6 +203,16 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
         await catchRevert(supplyChainAsNFTInstance.burn(1));
       });
 
+      it("returns getSupplierView view", async function () {
+        var view = await supplyChainAsNFTInstance.getSupplierView({ from: accounts[6] });
+        console.log(view);
+      });
+
+      it("returns getSignatoryView view", async function () {
+        var view = await supplyChainAsNFTInstance.getSignatoryView({ from: accounts[6] });
+        console.log(view);
+      });
+
       it("Finalises stage 5 and updates supplier balance", async function () {
         await supplyChainAsNFTInstance.completeFinalStage(1, 5, { from: accounts[6], value: 10000000 });
 
@@ -221,16 +231,6 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
 
       it("Transfers token if final stage is complete", async function () {
         await supplyChainAsNFTInstance.transferFrom(accounts[0], accounts[2], 1);
-      });
-
-      it("returns getSupplierView view", async function () {
-        var view = await supplyChainAsNFTInstance.getSupplierView({ from: accounts[3] });
-        console.log(view);
-      });
-
-      it("returns getSignatoryView view", async function () {
-        var view = await supplyChainAsNFTInstance.getSignatoryView({ from: accounts[3] });
-        console.log(view);
       });
     });
   });
