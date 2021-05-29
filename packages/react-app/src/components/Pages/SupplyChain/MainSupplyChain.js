@@ -33,7 +33,7 @@ export default function MainSupplyChain(props) {
       }
       setContracts(tableFormat);
     });
-  }, [contracts, writeContracts]);
+  }, [writeContracts]);
 
   const columns = [
     {

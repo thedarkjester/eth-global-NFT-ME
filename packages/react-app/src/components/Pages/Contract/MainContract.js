@@ -94,7 +94,7 @@ export default function MainContract(props) {
       }
       setStages(tableFormat);
     });
-  }, [injectedProvider, newStageEvents]);
+  }, [injectedProvider]);
 
   async function uploadData() {
     // loop over each stage, then loop over each signatory
