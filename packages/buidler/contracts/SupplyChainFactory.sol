@@ -71,7 +71,8 @@ contract SupplyChainFactory is AccessControl {
             "SupplyChainFactory: must have default admin role to add supplyChain"
         );
 
-        SupplyChainAsNFT supplyChain = new SupplyChainAsNFT(name, symbol);
+        SupplyChainAsNFT supplyChain =
+            new SupplyChainAsNFT(name, symbol, _msgSender());
         supplyChain.setTokenLimit(tokenLimit);
 
         _supplyChains.push(supplyChain);

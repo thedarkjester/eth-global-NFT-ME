@@ -17,7 +17,7 @@ describe("SupplyChainAsNFT:AddStages tests", function () {
   describe("Stages and ownership", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
-      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
+      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", accounts[0]);
     });
 
     describe("Can't add stages as non owner", function () {
@@ -58,7 +58,7 @@ describe("SupplyChainAsNFT:AddStages tests", function () {
   describe("SupplyChainAsNFT:AddSignatories", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
-      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
+      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", accounts[0]);
     });
 
     it("Adds a stage as owner", async function () {

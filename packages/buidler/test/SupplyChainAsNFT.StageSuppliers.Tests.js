@@ -31,7 +31,7 @@ describe("SupplyChainAsNFT:StageSuppliers tests", function () {
     supplierD = accounts[8];
     supplierE = accounts[9];
 
-    supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", {
+    supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", contractOwner, {
       from: contractOwner,
     });
 

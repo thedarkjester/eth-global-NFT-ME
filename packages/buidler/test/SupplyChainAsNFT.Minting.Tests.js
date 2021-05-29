@@ -17,7 +17,7 @@ describe("SupplyChainAsNFT:Minting tests", function () {
   describe("Deployment and ownership", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
-      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
+      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", accounts[0]);
     });
 
     // set once above

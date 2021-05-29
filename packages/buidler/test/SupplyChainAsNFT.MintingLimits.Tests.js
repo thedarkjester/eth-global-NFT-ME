@@ -17,7 +17,7 @@ describe("SupplyChainAsNFT:Permissions tests", function () {
   describe("Deployment and ownership", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
-      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
+      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", accounts[0]);
     });
 
     describe("in owner role", function () {

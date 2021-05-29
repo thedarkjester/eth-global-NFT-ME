@@ -18,7 +18,7 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
   describe("Deploying", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
-      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
+      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", accounts[0]);
     });
 
     describe("Starting stages", function () {

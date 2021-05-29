@@ -49,10 +49,13 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         address signatory;
     }
 
-    constructor(string memory name, string memory symbol)
-        public
-        ERC721MinterPauser(name, symbol)
-    {}
+    constructor(
+        string memory name,
+        string memory symbol,
+        address owner
+    ) public ERC721MinterPauser(name, symbol) {
+        _setupRole(DEFAULT_ADMIN_ROLE, owner);
+    }
 
     function getTokenStageState(uint256 token, uint256 stage)
         public
