@@ -71,6 +71,22 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         revert("no can do");
     }
 
+    event LogSupplierPaid(address receiver, uint256 amount);
+
+    /// @notice Withdraws the balance associated to the owner
+    /// @dev deliberately not checking isOwner as you may have been removed but should still get your funds
+    /// @dev setting balance to zero before send to prevent re-entry in case it is a contract address
+    function withdraw() public {
+        require(OwedBalances[_msgSender()] > 0);
+
+        uint256 balanceToSend = OwedBalances[_msgSender()];
+        OwedBalances[_msgSender()] = 0;
+
+        _msgSender().transfer(balanceToSend);
+
+        emit LogSupplierPaid(_msgSender(), balanceToSend);
+    }
+
     function getTokenStageState(uint256 token, uint256 stage)
         public
         view

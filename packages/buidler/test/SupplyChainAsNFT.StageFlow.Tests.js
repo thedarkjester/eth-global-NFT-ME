@@ -176,7 +176,6 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
         assert.equal(balance, 10000000);
       });
 
-
       it("Fails to finalise stage 5 with missing signatory", async function () {
         await catchRevert(supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[5], value: 10000000 }));
       });
@@ -204,13 +203,20 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
         await catchRevert(supplyChainAsNFTInstance.burn(1));
       });
 
-
       it("Finalises stage 5 and updates supplier balance", async function () {
         await supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[6], value: 10000000 });
 
         balance = await supplyChainAsNFTInstance.OwedBalances(accounts[5]);
 
         assert.equal(balance, 10000000);
+      });
+
+      it("Supplier can withdraw balance", async function () {
+        await supplyChainAsNFTInstance.withdraw({ from: accounts[5] });
+
+        balance = await supplyChainAsNFTInstance.OwedBalances(accounts[5]);
+
+        assert.equal(balance, 0);
       });
 
       it("Transfers token if final stage is complete", async function () {
