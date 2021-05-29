@@ -65,18 +65,17 @@ function App() {
 
   return (
     <div className="App">
-      <Header>
-        <Account
-          address={address}
-          setAddress={setAddress}
-          localProvider={localProvider}
-          injectedProvider={injectedProvider}
-          setInjectedProvider={setInjectedProvider}
-          mainnetProvider={mainnetProvider}
-        />
-      </Header>
-
       <Router>
+        <Header>
+          <Account
+            address={address}
+            setAddress={setAddress}
+            localProvider={localProvider}
+            injectedProvider={injectedProvider}
+            setInjectedProvider={setInjectedProvider}
+            mainnetProvider={mainnetProvider}
+          />
+        </Header>
         <Switch>
           <Route path="/supply-chain">
             {injectedProvider && writeContracts && (
