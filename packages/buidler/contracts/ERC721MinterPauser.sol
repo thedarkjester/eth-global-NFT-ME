@@ -30,7 +30,7 @@ contract ERC721MinterPauser is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     uint256 internal _tokenLimit = 1;
-    uint256 internal currentTokenMintCount;
+    uint256 internal currentTokenMintCount = 0;
 
     /**
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the

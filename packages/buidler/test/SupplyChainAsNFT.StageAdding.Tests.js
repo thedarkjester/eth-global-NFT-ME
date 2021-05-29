@@ -87,10 +87,31 @@ describe("SupplyChainAsNFT tests", function () {
         await supplyChainAsNFTInstance.addStageSignatory(1, accounts[1]);
       });
 
+      it("Adds adds a signatory at 1", async function () {
+        await supplyChainAsNFTInstance.addStageSignatory(1, accounts[2]);
+      });
+
       it("Stage signatory exists in the list of signatories", async function () {
         var response = await supplyChainAsNFTInstance.getStageSignatories(1);
-        assert.equal(response.length, 1);
+        assert.equal(response.length, 2);
         assert.equal(response[0], accounts[1]);
+        assert.equal(response[1], accounts[2]);
+      });
+
+      it("Sets token limit to 3", async function () {
+        var response = await supplyChainAsNFTInstance.setTokenLimit(3);
+      });
+
+      it("mints once", async function () {
+        await supplyChainAsNFTInstance.mint(accounts[0]);
+      });
+
+      it("Adds fails to add a signatory at 1", async function () {
+        await catchRevert(supplyChainAsNFTInstance.addStageSignatory(1, accounts[2]));
+      });
+
+      it("mints twice", async function () {
+        var response = await supplyChainAsNFTInstance.mint(accounts[0]);
       });
     });
   });
