@@ -30,6 +30,7 @@ export default function MainContract(props) {
   const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
   const [selectedStage, setSelectedStage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [stageList, setStageList] = useState([]);
   const [sigList, setSigList] = useState([]);
@@ -71,12 +72,36 @@ export default function MainContract(props) {
     getStages().then((i) => {
       const tableFormat = [];
       for (let x = 0; x < i.length; x++) {
-        const d = { id: x, name: i[x] + "_" + x };
+        const d = { id: x + 1, name: i[x] + "_" + x };
         tableFormat.push(d);
       }
       setStages(tableFormat);
     });
   }, []);
+
+  async function uploadData() {
+    // loop over each stage, then loop over each signatory
+    setLoading(true);
+    // get stageId to update
+    const stageId =
+      Number(
+        selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
+      ) + 1;
+    console.log(stageId);
+    for (let x = 0; x < stageList.length; x++) {
+      const result = await tx(
+        nftContract.addStageSupplier(stageId, stageList[x].address)
+      );
+      console.log("added supplier " + result);
+    }
+    for (let x = 0; x < sigList.length; x++) {
+      const result = await tx(
+        nftContract.addStageSignatory(stageId, sigList[x].address)
+      );
+      console.log("added signatory " + result);
+    }
+    setLoading(false);
+  }
 
   if (!injectedProvider) return "loading";
 
@@ -289,7 +314,11 @@ export default function MainContract(props) {
         {selectedStage && (
           <EuiFlexGroup justifyContent="flexEnd" alignItems="flexEnd">
             <EuiFlexItem grow={false}>
-              <EuiButton color="secondary" iconType="save">
+              <EuiButton
+                onClick={() => uploadData()}
+                color="secondary"
+                iconType="save"
+              >
                 <EuiText>
                   Save {selectedStage.slice(0, selectedStage.indexOf("_"))}
                 </EuiText>
