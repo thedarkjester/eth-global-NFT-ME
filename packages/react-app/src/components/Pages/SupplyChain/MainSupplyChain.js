@@ -9,10 +9,9 @@ import {
   EuiFieldNumber,
   EuiText,
   EuiBasicTable,
-  EuiSpacer,
-  EuiLink,
 } from "@elastic/eui";
 
+import Link from "../../Link";
 import Container from "../../Styled/Container";
 
 export default function MainSupplyChain(props) {
@@ -48,7 +47,7 @@ export default function MainSupplyChain(props) {
       field: "address",
       name: "Address",
       truncateText: false,
-      render: (item) => <EuiLink href={`/contract/${item}`}>{item}</EuiLink>,
+      render: (item) => <Link to={`/contract/${item}`} title={item} />,
     },
   ];
   if (!writeContracts) return "Loading..";

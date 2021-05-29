@@ -7,6 +7,8 @@ import {
   EuiHeaderLink,
 } from "@elastic/eui";
 
+import Link from "./Link";
+
 export default function Header(props) {
   return (
     <>
@@ -22,10 +24,10 @@ export default function Header(props) {
             </EuiHeaderLink>
           </EuiHeaderSectionItem>
           <EuiHeaderSectionItem style={{ paddingLeft: 15 }}>
-            <EuiHeaderLink href="/supply-chain">Supply Chain</EuiHeaderLink>
+            <Link isHeaderLink to="/supply-chain" title="Supply Chain" />
           </EuiHeaderSectionItem>
           <EuiHeaderSectionItem style={{ paddingLeft: 15 }}>
-            <EuiHeaderLink href="/ipfs">IPFS</EuiHeaderLink>
+            <Link isHeaderLink to="/ipfs" title="IPFS" />
           </EuiHeaderSectionItem>
         </EuiHeaderSection>
 
