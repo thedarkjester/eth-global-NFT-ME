@@ -29,7 +29,7 @@ export default function MainContract(props) {
   const { userAddress, tx, injectedProvider, writeContracts } = props;
   const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
-  const [selectedStage, setSelectedStage] = useState(null);
+  const [selectedStage, setSelectedStage] = useState("");
 
   const [stageList, setStageList] = useState([]);
   const [sigList, setSigList] = useState([]);
@@ -154,7 +154,7 @@ export default function MainContract(props) {
         <EuiSpacer />
         <EuiSpacer />
         <EuiSpacer />
-        <EuiText>{selectedStage}</EuiText>
+
         {selectedStage && (
           <EuiFlexGroup>
             <EuiFlexItem>
@@ -280,7 +280,29 @@ export default function MainContract(props) {
             </EuiFlexItem>
           </EuiFlexGroup>
         )}
+        {selectedStage && (
+          <EuiFlexGroup justifyContent="flexEnd" alignItems="flexEnd">
+            <EuiFlexItem grow={false}>
+              <EuiButton color="secondary" iconType="save">
+                <EuiText>
+                  Save {selectedStage.slice(0, selectedStage.indexOf("_"))}
+                </EuiText>
+              </EuiButton>
+            </EuiFlexItem>
+          </EuiFlexGroup>
+        )}
       </Container>
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
+      <EuiSpacer />
     </div>
   );
 }
