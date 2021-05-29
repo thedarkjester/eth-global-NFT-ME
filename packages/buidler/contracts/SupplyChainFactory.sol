@@ -5,6 +5,8 @@ import "./SupplyChainAsNFT.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 contract SupplyChainFactory is AccessControl {
+    uint256 currentTokenMintCount;
+
     event SupplyChainCreated(string name, string symbol, uint256 tokenLimit);
 
     constructor() public {
