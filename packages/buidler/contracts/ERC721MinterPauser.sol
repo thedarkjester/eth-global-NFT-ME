@@ -30,7 +30,7 @@ contract ERC721MinterPauser is
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     uint256 internal _tokenLimit = 1;
-    uint256 currentTokenMintCount;
+    uint256 internal currentTokenMintCount;
 
     /**
      * @dev Grants `DEFAULT_ADMIN_ROLE`, `MINTER_ROLE` and `PAUSER_ROLE` to the
@@ -109,7 +109,7 @@ contract ERC721MinterPauser is
         address from,
         address to,
         uint256 tokenId
-    ) internal override(ERC721, ERC721Pausable) {
+    ) internal virtual override(ERC721, ERC721Pausable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
 }
