@@ -33,8 +33,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     {}
 
     function getStages() public view returns (string[] memory stages) {
-        require(_stageCount > 0, "There are no stages");
-
         string[] memory safeStages = new string[](_stageCount);
 
         for (uint256 i = 0; i < _stageCount; i++) {
@@ -66,6 +64,30 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             ) return false;
         }
         return true;
+    }
+
+    function addStageSignatory(uint256 stage, address addr) public {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
+            "SupplyChainAsNFT: must have default admin role to addStage"
+        );
+
+        require(
+            currentTokenMintCount == 0,
+            "Tokens have been minted, stages cannot be added"
+        );
+
+        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+
+        _chainStageSignatories[stage].push(addr);
+    }
+
+    function getStageSignatories(uint256 stage)
+        public
+        view
+        returns (address[] memory stages)
+    {
+        return _chainStageSignatories[stage];
     }
 
     function addStage(string memory name) public {
