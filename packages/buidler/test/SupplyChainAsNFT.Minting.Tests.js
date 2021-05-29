@@ -20,14 +20,11 @@ describe("SupplyChainAsNFT tests", function () {
       supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
     });
 
-    describe("Can set token limit", function () {
-      it("Sets token limit", async function () {
-        var response = await supplyChainAsNFTInstance.setTokenLimit(3);
-      });
-    });
-
     // set once above
     describe("Can't mint more than the limit", function () {
+      it("Sets token limit to 3", async function () {
+        var response = await supplyChainAsNFTInstance.setTokenLimit(3);
+      });
       it("mints once", async function () {
         await supplyChainAsNFTInstance.mint(accounts[0]);
       });
