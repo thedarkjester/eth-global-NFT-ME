@@ -57,6 +57,18 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         _setupRole(DEFAULT_ADMIN_ROLE, owner);
     }
 
+    /// @notice Default fallback for non-data related deposits
+    /// @dev no funds should be accepted to this contract
+    fallback() external payable {
+        revert("no can do");
+    }
+
+    /// @notice Default receive for non-data related deposits
+    /// @dev no funds should be accepted to this contract
+    receive() external payable {
+        revert("no can do");
+    }
+
     function getTokenStageState(uint256 token, uint256 stage)
         public
         view
