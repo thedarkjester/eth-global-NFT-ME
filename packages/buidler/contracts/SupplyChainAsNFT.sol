@@ -9,13 +9,20 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     event TokenLimitSet(uint256 tokenLimit);
     event StageStarted(uint256 token, uint256 stage);
+    event StageCompleted(uint256 token, uint256 stage);
     event SupplierAdded(uint256 stage, address addr);
+    event SupplierPaid(
+        address indexed supplier,
+        uint256 token,
+        uint256 stage,
+        uint256 amount
+    );
 
     bool private tokenLimitSet;
     uint256 private _stageCount;
 
     mapping(uint256 => ChainStage) public _chainStages;
-    mapping(address => uint256) _owedBalances;
+    mapping(address => uint256) public OwedBalances;
 
     mapping(uint256 => address[]) public _chainStageSignatories;
     mapping(uint256 => address[]) public _chainStageSuppliers;
@@ -47,6 +54,14 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         ERC721MinterPauser(name, symbol)
     {}
 
+    function getTokenStageState(uint256 token, uint256 stage)
+        public
+        view
+        returns (ChainStageState memory state)
+    {
+        state = _tokenStageStates[token][stage];
+    }
+
     // The idea here is:
     // factory creates this contract (creator is owner)
     // stages are added
@@ -77,6 +92,14 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     ) public payable {
         require(_stageCount >= stage, "stage does not exist");
         require(currentTokenMintCount >= token, "token does not exist");
+
+        if (stage > 1) {
+            require(
+                !_tokenStageStates[token][stage - 1].isComplete,
+                "The previous state is not complete"
+            );
+        }
+
         require(
             !_tokenStageStates[token][stage].hasStarted,
             "The stage is already started"
@@ -106,17 +129,22 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         allStagesHaveSuppliersAndSignatories();
 
         if (stage > 1) {
-            if (_tokenStageStates[token][stage].signatory == _msgSender()) {
+            uint256 previousStage = stage - 1;
+
+            if (
+                _tokenStageStates[token][previousStage].signatory ==
+                _msgSender()
+            ) {
                 require(
-                    _tokenStageStates[token][stage - 1].supplierFee ==
+                    _tokenStageStates[token][previousStage].supplierFee ==
                         msg.value,
                     "The fee for the previous stage was not paid"
                 );
 
-                completeStage(token, stage);
+                completeStage(token, previousStage);
             } else {
                 require(
-                    _tokenStageStates[token][stage - 1].isComplete,
+                    _tokenStageStates[token][previousStage].isComplete,
                     "The previous stage is not complete"
                 );
             }
@@ -144,11 +172,11 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function CompleteFinalStage(uint256 token, uint256 stage) public payable {
-        require(_stageCount >= stage, "stage does not exist");
+        require(_stageCount == stage, "This isn't the final stage");
         require(currentTokenMintCount >= token, "token does not exist");
         require(
-            !_tokenStageStates[token][stage].hasStarted,
-            "The stage is already started"
+            _tokenStageStates[token][stage].hasStarted,
+            "The stage has not started"
         );
         require(
             !_tokenStageStates[token][stage].isComplete,
@@ -167,8 +195,21 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function completeStage(uint256 token, uint256 stage) private {
+        emit StageCompleted(token, stage);
+
         _tokenStageStates[token][stage].isComplete = true;
-        _owedBalances[_tokenStageStates[token][stage].supplier].add(msg.value);
+
+        emit SupplierPaid(
+            _tokenStageStates[token][stage].supplier,
+            token,
+            stage,
+            msg.value
+        );
+
+        OwedBalances[_tokenStageStates[token][stage].supplier] = OwedBalances[
+            _tokenStageStates[token][stage].supplier
+        ]
+            .add(msg.value);
     }
 
     function getStages() public view returns (string[] memory stages) {
@@ -290,15 +331,14 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     ) internal override(ERC721MinterPauser) {
         if (_stageCount > 0) {
             allStagesHaveSuppliersAndSignatories();
-        }
 
-        if (_stageCount > 0 && _tokenStageStates[token][0].hasStarted) {
-            require(
-                _tokenStageStates[token][_stageCount].isComplete,
-                "not all stages are complete"
-            );
+            if (_tokenStageStates[token][0].hasStarted) {
+                require(
+                    _tokenStageStates[token][_stageCount].isComplete,
+                    "not all stages are complete"
+                );
+                super._beforeTokenTransfer(from, to, token);
+            }
         }
-
-        super._beforeTokenTransfer(from, to, token);
     }
 }
