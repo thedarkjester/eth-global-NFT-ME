@@ -6,9 +6,6 @@ const Container = styled.div`
   border: 1px solid lightgray;
   font-size: 14px;
   background-color: #fff;
-  display: flex;
-  flex-align: center;
-  justify-content: center;
   min-height: 800px;
 
   ${"" /* ${(props) => } */}

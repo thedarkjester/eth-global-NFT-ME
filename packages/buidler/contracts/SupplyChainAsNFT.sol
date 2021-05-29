@@ -222,9 +222,9 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         stages = safeStages;
     }
 
-    /// @notice Retrieves a list of all the stage id, name, address
-    /// @return names array
-    /// @return addresses array
+    // /// @notice Retrieves a list of all the stage id, name, address
+    // /// @return names array
+    // /// @return addresses array
     // function getStageData()
     //     public
     //     view

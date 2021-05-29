@@ -107,8 +107,6 @@ export default function MainSupplyChain(props) {
             </EuiFormRow>
           </EuiForm>
         </EuiFlexItem>
-      </EuiFlexGroup>
-      <EuiFlexGroup>
         <EuiFlexItem>
           <EuiBasicTable
             columns={columns}
