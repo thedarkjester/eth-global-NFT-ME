@@ -84,10 +84,14 @@ describe("SupplyChainAsNFT:TokenStageDocuments tests", function () {
     describe("checks common assertions for function", async function () {
       it("fails trying to use an out of bounds stage (0 || > 3)", async function () {
         await catchRevert(
-          supplyChainAsNFTInstance.addTokenStageDocument(1, 0, "SOME_HASH")
+          supplyChainAsNFTInstance.addTokenStageDocument(1, 0, "SOME_HASH", {
+            from: supplierA,
+          })
         );
         await catchRevert(
-          supplyChainAsNFTInstance.addTokenStageDocument(1, 4, "SOME_HASH")
+          supplyChainAsNFTInstance.addTokenStageDocument(1, 4, "SOME_HASH", {
+            from: supplierA,
+          })
         );
       });
     });
@@ -95,13 +99,25 @@ describe("SupplyChainAsNFT:TokenStageDocuments tests", function () {
     describe("checks during process", async function () {
       it("fails trying to use first stage which has not started", async function () {
         await catchRevert(
-          supplyChainAsNFTInstance.addTokenStageDocument(1, 1, "SOME_HASH")
+          supplyChainAsNFTInstance.addTokenStageDocument(1, 1, "SOME_HASH", {
+            from: supplierA,
+          })
         );
       });
 
       it("fails trying to use second stage which has not started", async function () {
         await catchRevert(
-          supplyChainAsNFTInstance.addTokenStageDocument(1, 2, "SOME_HASH")
+          supplyChainAsNFTInstance.addTokenStageDocument(1, 2, "SOME_HASH", {
+            from: supplierB,
+          })
+        );
+      });
+
+      it("fails trying to use incorrect supplier for initial stage", async function () {
+        await catchRevert(
+          supplyChainAsNFTInstance.addTokenStageDocument(1, 1, "SOME_HASH", {
+            from: supplierD,
+          })
         );
       });
 
@@ -111,12 +127,18 @@ describe("SupplyChainAsNFT:TokenStageDocuments tests", function () {
           1,
           supplierA,
           signatoryA,
-          0
+          0,
+          {
+            from: contractOwner,
+          }
         );
         const hash1Tx = await supplyChainAsNFTInstance.addTokenStageDocument(
           1,
           1,
-          "SOME_HASH:1"
+          "SOME_HASH:1",
+          {
+            from: supplierA,
+          }
         );
 
         const { logs: hash1Logs } = hash1Tx;
@@ -132,7 +154,10 @@ describe("SupplyChainAsNFT:TokenStageDocuments tests", function () {
         const hash2Added = await supplyChainAsNFTInstance.addTokenStageDocument(
           1,
           1,
-          "SOME_HASH:2"
+          "SOME_HASH:2",
+          {
+            from: supplierA,
+          }
         );
         // not checking for second emit event as already tested above
       });

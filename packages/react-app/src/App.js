@@ -54,14 +54,14 @@ function App() {
 
   console.log("READ, WRITE CONTRACTS", readContracts, writeContracts);
 
-  const newSupplyChainEvents = useEventListener(
-    readContracts,
-    factoryContract,
-    "SupplyChainCreated",
-    localProvider,
-    1
-  );
-  console.log(newSupplyChainEvents);
+  // const newSupplyChainEvents = useEventListener(
+  //   readContracts,
+  //   factoryContract,
+  //   "SupplyChainCreated",
+  //   localProvider,
+  //   1
+  // );
+  // console.log(newSupplyChainEvents);
 
   return (
     <div className="App">
@@ -82,7 +82,7 @@ function App() {
               <MainSupplyChain
                 readContracts={readContracts}
                 writeContracts={writeContracts}
-                newSupplyChainEvents={newSupplyChainEvents}
+                // newSupplyChainEvents={newSupplyChainEvents}
                 tx={tx}
                 userAddress={address}
               />
@@ -93,7 +93,7 @@ function App() {
               <MainContract
                 readContracts={readContracts}
                 writeContracts={writeContracts}
-                newSupplyChainEvents={newSupplyChainEvents}
+                // newSupplyChainEvents={newSupplyChainEvents}
                 tx={tx}
                 localProvider={localProvider}
                 mainnetProvider={mainnetProvider}

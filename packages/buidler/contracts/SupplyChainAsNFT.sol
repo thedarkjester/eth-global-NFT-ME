@@ -439,6 +439,11 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             "The document already exists for token on stage"
         );
 
+        require(
+            _chainStageSuppliersExist[stage][_msgSender()],
+            "You must be a supplier of the stage"
+        );
+
         _chainStageDocuments[token][stage].push(docHash);
         _chainStageDocumentsExist[token][stage][docHash] = true;
 
