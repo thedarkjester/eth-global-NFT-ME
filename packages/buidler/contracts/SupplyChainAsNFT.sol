@@ -59,6 +59,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     // ROB missing - function assignSupplier() {} - ROB this will assign the supplier to the stage with their fee (can be 0) - has to be in the list of stage suppliers
     // can't reassign (for now)
 
+    // ROB - Withdraw balance (Address checking their balance in stored mapping - not there yet)
     // ROB function signStage(tokenId, stage, addressOfNextSupplier, fee) {} - ROB - only the currently assigned signatory can sign (e.g. I requested it)
     // completes current stage, assigns supplier for next stage with fee
     // can't sign stage without paying the fee if it is required
