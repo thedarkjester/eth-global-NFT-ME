@@ -42,7 +42,6 @@ const localProvider = new ethers.providers.JsonRpcProvider(
 
 export const factoryContract = "SupplyChainFactory";
 
-console.log("providers", mainnetProvider, localProvider);
 function App() {
   const [address, setAddress] = useState();
   const [injectedProvider, setInjectedProvider] = useState();
@@ -50,7 +49,6 @@ function App() {
   const gasPrice = useGasPrice("fast");
 
   const tx = Transactor(injectedProvider, gasPrice);
-  console.log(">>>> ", injectedProvider);
   const readContracts = useContractLoader(injectedProvider);
   const writeContracts = useContractLoader(injectedProvider);
 

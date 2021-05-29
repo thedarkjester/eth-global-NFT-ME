@@ -24,7 +24,6 @@ export default function MainContract(props) {
     abi,
     injectedProvider.getSigner()
   );
-  console.log("wowpow", userAddress, injectedProvider, mainnetProvider);
   return (
     <div>
       <EuiText>{address}</EuiText>
