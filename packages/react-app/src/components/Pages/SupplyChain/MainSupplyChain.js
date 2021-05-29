@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   EuiButton,
   EuiFlexGroup,
@@ -8,13 +8,57 @@ import {
   EuiForm,
   EuiFieldNumber,
   EuiText,
+  EuiBasicTable,
+  EuiSpacer,
 } from "@elastic/eui";
 
 import Container from "../../Styled/Container";
+import factoryContract from "../../../App";
+import { useContractReader } from "../../../hooks";
 
+console.log(factoryContract);
 export default function MainSupplyChain(props) {
   const { writeContracts, readContracts, tx } = props;
   const [data, setData] = useState({ name: "", symbol: "", tokenLimit: 0 });
+  const [contracts, setContracts] = useState([]);
+
+  if (!writeContracts) return "Loading..";
+  async function contracts2() {
+    return await writeContracts["SupplyChainFactory"].getSupplyChainList();
+  }
+  const r = contracts2().then((i) => {
+    const names = i.names;
+    const address = i.addresses;
+    const tableFormat = [];
+    for (let x = 0; x < i[0].length; x++) {
+      const d = { name: names[x], address: address[x] };
+      tableFormat.push(d);
+    }
+    setContracts(tableFormat);
+  });
+
+  //   const contracts2 = useContractReader(
+  //     readContracts,
+  //     "SupplyChainFactory",
+  //     "_supplyChains"
+  //   //   );
+  //   console.log(contracts2);
+
+  const columns = [
+    {
+      field: "name",
+      name: "Name",
+      sortable: true,
+      truncateText: false,
+    },
+    {
+      field: "address",
+      name: "Address",
+      truncateText: false,
+      width: '50%"',
+    },
+  ];
+
   return (
     <Container>
       <EuiFlexGroup>
@@ -55,7 +99,6 @@ export default function MainSupplyChain(props) {
                 color="primary"
                 iconType="plus"
                 onClick={() => {
-                  console.log(tx);
                   tx(
                     writeContracts["SupplyChainFactory"].addSupplyChain(
                       data.name,
@@ -73,7 +116,11 @@ export default function MainSupplyChain(props) {
       </EuiFlexGroup>
       <EuiFlexGroup>
         <EuiFlexItem>
-          {props.newSupplyChainEvents.map((i) => console.table(i))}
+          <EuiBasicTable
+            columns={columns}
+            items={contracts}
+            style={{ marginLeft: 40, marginTop: 30 }}
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </Container>

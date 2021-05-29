@@ -37,6 +37,8 @@ const localProvider = new ethers.providers.JsonRpcProvider(
     : "http://localhost:8545"
 );
 
+export const factoryContract = "SupplyChainFactory";
+
 console.log("providers", mainnetProvider, localProvider);
 function App() {
   const [address, setAddress] = useState();
@@ -48,27 +50,16 @@ function App() {
 
   const readContracts = useContractLoader(localProvider);
   const writeContracts = useContractLoader(injectedProvider);
-  console.log(tx);
-  console.log(readContracts, writeContracts);
+
+  console.log("READ, WRITE CONTRACTS", readContracts, writeContracts);
 
   const newSupplyChainEvents = useEventListener(
     readContracts,
-    "SupplyChainFactory",
+    factoryContract,
     "SupplyChainCreated",
     localProvider,
     1
   );
-
-  // const loadWeb3Modal = useCallback(async () => {
-  //   const provider = await web3Modal.connect();
-  //   setInjectedProvider(new Web3Provider(provider));
-  // }, [setInjectedProvider]);
-
-  // useEffect(() => {
-  //   if (web3Modal.cachedProvider) {
-  //     loadWeb3Modal();
-  //   }
-  // }, [loadWeb3Modal]);
 
   return (
     <div className="App">
