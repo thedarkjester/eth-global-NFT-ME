@@ -222,6 +222,31 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         stages = safeStages;
     }
 
+    /// @notice Retrieves a list of all the stage id, name, address
+    /// @return names array
+    /// @return addresses array
+    // function getStageData()
+    //     public
+    //     view
+    //     returns (string[] memory names, uint256[] memory ids)
+    // {
+
+    //     string[] memory safeNames = new string[](_chainStages.length);
+    //     uint256[] memory ids = new uint256[](_chainStages.length);
+
+    //     for (uint256 i = 0; i < _chainStages.length; i++) {
+    //         if (!isSafeString(_supplyChains[i].name())) {
+    //             safeNames[i] = "***";
+    //         } else {
+    //             safeNames[i] = _supplyChains[i].name();
+    //         }
+
+    //         workingAddresses[i] = address(_supplyChains[i]);
+    //     }
+
+    //     names = safeNames;
+    //     addresses = workingAddresses;
+    // }
 
 
     function addStageSupplier(uint256 stage, address addr) public {
