@@ -8,7 +8,7 @@ const {
 
 const SupplyChainAsNFT = artifacts.require("SupplyChainAsNFT");
 
-describe("SupplyChainAsNFT tests", function () {
+describe("SupplyChainAsNFT:Permissions tests", function () {
   let accounts;
   let supplyChainAsNFTInstance;
   before(async function () {
@@ -17,7 +17,7 @@ describe("SupplyChainAsNFT tests", function () {
   describe("Deployment and ownership", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
-      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
+      supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test", accounts[0]);
     });
 
     describe("in owner role", function () {

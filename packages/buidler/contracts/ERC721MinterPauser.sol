@@ -112,4 +112,8 @@ contract ERC721MinterPauser is
     ) internal virtual override(ERC721, ERC721Pausable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }
+
+    function burn(uint256 tokenId) public virtual override(ERC721Burnable) {
+        revert("disabled for now so that we can clean up storage if we burn");
+    }
 }

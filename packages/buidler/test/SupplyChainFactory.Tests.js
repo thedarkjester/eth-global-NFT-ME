@@ -8,7 +8,7 @@ const {
 
 const SupplyChainFactory = artifacts.require("SupplyChainFactory");
 
-describe("SupplyChainFactory tests", function () {
+describe("SupplyChainAsNFT:AddingSupplyChains tests", function () {
   let accounts;
   let supplyChainFactoryInstance;
   before(async function () {
