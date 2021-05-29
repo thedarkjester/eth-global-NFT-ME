@@ -10,13 +10,11 @@ import {
   EuiText,
   EuiBasicTable,
   EuiSpacer,
+  EuiLink,
 } from "@elastic/eui";
 
 import Container from "../../Styled/Container";
-import factoryContract from "../../../App";
-import { useContractReader } from "../../../hooks";
 
-console.log(factoryContract);
 export default function MainSupplyChain(props) {
   const { writeContracts, readContracts, tx } = props;
   const [data, setData] = useState({ name: "", symbol: "", tokenLimit: 0 });
@@ -37,25 +35,19 @@ export default function MainSupplyChain(props) {
     setContracts(tableFormat);
   });
 
-  //   const contracts2 = useContractReader(
-  //     readContracts,
-  //     "SupplyChainFactory",
-  //     "_supplyChains"
-  //   //   );
-  //   console.log(contracts2);
-
   const columns = [
     {
       field: "name",
       name: "Name",
       sortable: true,
       truncateText: false,
+      render: (item) => <span>{item}</span>,
     },
     {
       field: "address",
       name: "Address",
       truncateText: false,
-      width: '50%"',
+      render: (item) => <EuiLink href={`/contract/${item}`}>{item}</EuiLink>,
     },
   ];
 

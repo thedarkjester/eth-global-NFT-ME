@@ -25,8 +25,8 @@ import {
   Contract,
 } from "./components";
 import MainSupplyChain from "./components/Pages/SupplyChain/MainSupplyChain";
+import MainContract from "./components/Pages/Contract/MainContract";
 import IpfsSample from "./components/Pages/IPFS/IpfsSample";
-
 const mainnetProvider = new ethers.providers.InfuraProvider(
   "mainnet",
   "2717afb6bf164045b5d5468031b93f87"
@@ -83,6 +83,15 @@ function App() {
               writeContracts={writeContracts}
               newSupplyChainEvents={newSupplyChainEvents}
               tx={tx}
+            />
+          </Route>
+          <Route path="/contract/:address">
+            <MainContract
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              newSupplyChainEvents={newSupplyChainEvents}
+              tx={tx}
+              localProvider={localProvider}
             />
           </Route>
           <Route path="/ipfs">
