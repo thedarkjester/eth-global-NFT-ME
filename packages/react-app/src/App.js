@@ -9,11 +9,11 @@ import { EuiBottomBar } from "@elastic/eui";
 
 import { Transactor } from "./helpers";
 import {
-  useExchangePrice,
   useGasPrice,
   useContractLoader,
   useContractReader,
   useEventListener,
+  useExchangePrice,
 } from "./hooks";
 import {
   Header,
@@ -21,16 +21,19 @@ import {
   Provider,
   Faucet,
   Ramp,
-  Address,
   Contract,
 } from "./components";
 import MainSupplyChain from "./components/Pages/SupplyChain/MainSupplyChain";
 import MainContract from "./components/Pages/Contract/MainContract";
 import IpfsSample from "./components/Pages/IPFS/IpfsSample";
-const mainnetProvider = new ethers.providers.InfuraProvider(
-  "mainnet",
-  "2717afb6bf164045b5d5468031b93f87"
+
+const mainnetProvider = new ethers.providers.JsonRpcProvider(
+  "http://localhost:8545/"
 );
+// const mainnetProvider = new ethers.providers.InfuraProvider(
+//   "mainnet",
+//   "2717afb6bf164045b5d5468031b93f87"
+// );
 const localProvider = new ethers.providers.JsonRpcProvider(
   process.env.REACT_APP_PROVIDER
     ? process.env.REACT_APP_PROVIDER
@@ -39,16 +42,14 @@ const localProvider = new ethers.providers.JsonRpcProvider(
 
 export const factoryContract = "SupplyChainFactory";
 
-console.log("providers", mainnetProvider, localProvider);
 function App() {
   const [address, setAddress] = useState();
   const [injectedProvider, setInjectedProvider] = useState();
-  const price = useExchangePrice(mainnetProvider);
+  const price = 90000000000;
   const gasPrice = useGasPrice("fast");
 
   const tx = Transactor(injectedProvider, gasPrice);
-
-  const readContracts = useContractLoader(localProvider);
+  const readContracts = useContractLoader(injectedProvider);
   const writeContracts = useContractLoader(injectedProvider);
 
   console.log("READ, WRITE CONTRACTS", readContracts, writeContracts);
@@ -71,7 +72,6 @@ function App() {
           injectedProvider={injectedProvider}
           setInjectedProvider={setInjectedProvider}
           mainnetProvider={mainnetProvider}
-          price={price}
         />
       </Header>
 
@@ -83,6 +83,7 @@ function App() {
               writeContracts={writeContracts}
               newSupplyChainEvents={newSupplyChainEvents}
               tx={tx}
+              userAddress={address}
             />
           </Route>
           <Route path="/contract/:address">
@@ -92,6 +93,9 @@ function App() {
               newSupplyChainEvents={newSupplyChainEvents}
               tx={tx}
               localProvider={localProvider}
+              mainnetProvider={mainnetProvider}
+              userAddress={address}
+              injectedProvider={injectedProvider}
             />
           </Route>
           <Route path="/ipfs">
@@ -99,7 +103,7 @@ function App() {
               <IpfsSample
                 injectedProvider={injectedProvider}
                 gasPrice={gasPrice}
-                address={address}
+                userAddress={address}
                 readContracts={readContracts}
                 writeContracts={writeContracts}
                 tx={tx}
@@ -121,24 +125,6 @@ function App() {
       ></div>
 
       <EuiBottomBar style={{ backgroundColor: "#fff" }}>
-        <div
-          style={{
-            bottom: 10,
-            padding: 5,
-          }}
-        >
-          <Row align="middle" gutter={4}>
-            <Col span={10}>
-              <Provider name={"mainnet"} provider={mainnetProvider} />
-            </Col>
-            <Col span={6}>
-              <Provider name={"local"} provider={localProvider} />
-            </Col>
-            <Col span={8}>
-              <Provider name={"injected"} provider={injectedProvider} />
-            </Col>
-          </Row>
-        </div>
         <div
           style={{
             bottom: 10,
