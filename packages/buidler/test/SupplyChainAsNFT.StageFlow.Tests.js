@@ -177,19 +177,19 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
       });
 
       it("Fails to finalise stage 5 with missing signatory", async function () {
-        await catchRevert(supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[5], value: 10000000 }));
+        await catchRevert(supplyChainAsNFTInstance.completeFinalStage(1, 5, { from: accounts[5], value: 10000000 }));
       });
 
       it("Fails to finalise stage 5 with missing fee", async function () {
-        await catchRevert(supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[6] }));
+        await catchRevert(supplyChainAsNFTInstance.completeFinalStage(1, 5, { from: accounts[6] }));
       });
 
       it("Fails to finalise stage 5 with partial fee", async function () {
-        await catchRevert(supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[6], value: 1000000 }));
+        await catchRevert(supplyChainAsNFTInstance.completeFinalStage(1, 5, { from: accounts[6], value: 1000000 }));
       });
 
       it("Fails to finalise stage 5 with overpayment", async function () {
-        await catchRevert(supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[6], value: 100000000 }));
+        await catchRevert(supplyChainAsNFTInstance.completeFinalStage(1, 5, { from: accounts[6], value: 100000000 }));
       });
 
       it("Fails to transfer token if final stage is not complete", async function () {
@@ -204,7 +204,7 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
       });
 
       it("Finalises stage 5 and updates supplier balance", async function () {
-        await supplyChainAsNFTInstance.CompleteFinalStage(1, 5, { from: accounts[6], value: 10000000 });
+        await supplyChainAsNFTInstance.completeFinalStage(1, 5, { from: accounts[6], value: 10000000 });
 
         balance = await supplyChainAsNFTInstance.OwedBalances(accounts[5]);
 
@@ -223,6 +223,15 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
         await supplyChainAsNFTInstance.transferFrom(accounts[0], accounts[2], 1);
       });
 
+      it("returns getSupplierView view", async function () {
+        var view = await supplyChainAsNFTInstance.getSupplierView({ from: accounts[3] });
+        console.log(view);
+      });
+
+      it("returns getSignatoryView view", async function () {
+        var view = await supplyChainAsNFTInstance.getSignatoryView({ from: accounts[3] });
+        console.log(view);
+      });
     });
   });
 });

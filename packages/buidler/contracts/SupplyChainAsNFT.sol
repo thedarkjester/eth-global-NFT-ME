@@ -30,27 +30,28 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     bool private tokenLimitSet;
     uint256 private _stageCount;
 
-    mapping(uint256 => ChainStage) public _chainStages;
+    mapping(uint256 => ChainStage) private _chainStages;
     mapping(address => uint256) public OwedBalances;
 
-    mapping(uint256 => address[]) public _chainStageSignatories;
-    mapping(uint256 => address[]) public _chainStageSuppliers;
+    mapping(uint256 => address[]) private _chainStageSignatories;
+    mapping(uint256 => address[]) private _chainStageSuppliers;
 
     // token -> stage -> documents[]
     mapping(uint256 => mapping(uint256 => string[]))
-        public _chainStageDocuments;
+        private _chainStageDocuments;
 
     mapping(uint256 => mapping(address => bool))
-        public _chainStageSignatoriesExist;
+        private _chainStageSignatoriesExist;
 
     mapping(uint256 => mapping(address => bool))
-        public _chainStageSuppliersExist;
+        private _chainStageSuppliersExist;
 
     mapping(uint256 => mapping(uint256 => mapping(string => bool)))
-        public _chainStageDocumentsExist;
+        private _chainStageDocumentsExist;
 
     // token -> stage-> complete
-    mapping(uint256 => mapping(uint256 => ChainStageState)) _tokenStageStates;
+    mapping(uint256 => mapping(uint256 => ChainStageState))
+        private _tokenStageStates;
 
     struct ChainStage {
         uint256 id;
@@ -99,6 +100,94 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         _msgSender().transfer(balanceToSend);
 
         emit LogSupplierPaid(_msgSender(), balanceToSend);
+    }
+
+    struct AddressStageView {
+        uint256 token;
+        uint256 stage;
+        uint256 supplierFee;
+    }
+
+    function getSignatoryView()
+        public
+        view
+        returns (AddressStageView[] memory states)
+    {
+        uint256 totalSupply = totalSupply();
+
+        uint256 resultCount = 0;
+
+        for (uint256 token = 1; token <= totalSupply; token++) {
+            for (uint256 stage = 1; stage <= _stageCount; stage++) {
+                if (_tokenStageStates[token][stage].signatory == _msgSender()) {
+                    resultCount++;
+                }
+            }
+        }
+
+        AddressStageView[] memory results = new AddressStageView[](0);
+
+        if (resultCount == 0) {
+            return results;
+        }
+
+        results = new AddressStageView[](resultCount);
+        uint256 index = 0;
+
+        for (uint256 token = 1; token <= totalSupply; token++) {
+            for (uint256 stage = 1; stage <= _stageCount; stage++) {
+                if (_tokenStageStates[token][stage].signatory == _msgSender()) {
+                    results[index].stage = stage;
+                    results[index].token = token;
+                    results[index].supplierFee = _tokenStageStates[token][stage]
+                        .supplierFee;
+                    index++;
+                }
+            }
+        }
+
+        states = results;
+    }
+
+    function getSupplierView()
+        public
+        view
+        returns (AddressStageView[] memory states)
+    {
+        uint256 totalSupply = totalSupply();
+
+        uint256 resultCount = 0;
+
+        for (uint256 token = 1; token <= totalSupply; token++) {
+            for (uint256 stage = 1; stage <= _stageCount; stage++) {
+                if (_tokenStageStates[token][stage].supplier == _msgSender()) {
+                    resultCount++;
+                }
+            }
+        }
+
+        AddressStageView[] memory results = new AddressStageView[](0);
+
+        if (resultCount == 0) {
+            return results;
+        }
+
+        results = new AddressStageView[](resultCount);
+        uint256 index = 0;
+
+        for (uint256 token = 1; token <= totalSupply; token++) {
+            for (uint256 stage = 1; stage <= _stageCount; stage++) {
+                if (_tokenStageStates[token][stage].supplier == _msgSender()) {
+                    results[index].stage = stage;
+                    results[index].token = token;
+                    results[index].supplierFee = _tokenStageStates[token][stage]
+                        .supplierFee;
+                    index++;
+                }
+            }
+        }
+
+        states = results;
     }
 
     function getTokenStageState(uint256 token, uint256 stage)
@@ -190,7 +279,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         }
     }
 
-    function CompleteFinalStage(uint256 token, uint256 stage) public payable {
+    function completeFinalStage(uint256 token, uint256 stage) public payable {
         require(_stageCount == stage, "This isn't the final stage");
         require(currentTokenMintCount >= token, "token does not exist");
         require(
@@ -244,32 +333,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         stages = safeStages;
     }
-
-    // /// @notice Retrieves a list of all the stage id, name, address
-    // /// @return names array
-    // /// @return addresses array
-    // function getStageData()
-    //     public
-    //     view
-    //     returns (string[] memory names, uint256[] memory ids)
-    // {
-
-    //     string[] memory safeNames = new string[](_chainStages.length);
-    //     uint256[] memory ids = new uint256[](_chainStages.length);
-
-    //     for (uint256 i = 0; i < _chainStages.length; i++) {
-    //         if (!isSafeString(_supplyChains[i].name())) {
-    //             safeNames[i] = "***";
-    //         } else {
-    //             safeNames[i] = _supplyChains[i].name();
-    //         }
-
-    //         workingAddresses[i] = address(_supplyChains[i]);
-    //     }
-
-    //     names = safeNames;
-    //     addresses = workingAddresses;
-    // }
 
     function addStageSupplier(uint256 stage, address addr) public {
         require(
