@@ -156,6 +156,12 @@ export default function MainContract(props) {
         <EuiSpacer />
 
         {selectedStage && (
+          <EuiText>
+            {selectedStage.slice(0, selectedStage.indexOf("_"))}
+          </EuiText>
+        )}
+
+        {selectedStage && (
           <EuiFlexGroup>
             <EuiFlexItem>
               <EuiText>Add Stage Supplier</EuiText>
@@ -180,9 +186,9 @@ export default function MainContract(props) {
                     {stageList.map(({ address }, idx) => (
                       <EuiDraggable
                         spacing="m"
-                        key={idx + Math.random()}
+                        key={Math.random()}
                         index={idx}
-                        draggableId={(Math.random() + idx).toString()}
+                        draggableId={"1" + idx.toString()}
                         customDragHandle={true}
                       >
                         {(provided) => (
@@ -241,9 +247,9 @@ export default function MainContract(props) {
                     {sigList.map(({ address }, idx) => (
                       <EuiDraggable
                         spacing="m"
-                        key={idx + Math.random()}
+                        key={Math.random()}
                         index={idx}
-                        draggableId={(Math.random() + idx).toString()}
+                        draggableId={"2" + idx.toString()}
                         customDragHandle={true}
                       >
                         {(provided) => (
