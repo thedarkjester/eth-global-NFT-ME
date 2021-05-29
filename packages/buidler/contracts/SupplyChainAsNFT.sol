@@ -12,6 +12,12 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
 
+    event TokenStageDocumentAdded(
+        uint256 token,
+        uint256 stage,
+        string documentHash
+    );
+
     event SupplierAdded(uint256 stage, address addr);
     event SupplierPaid(
         address indexed supplier,
@@ -29,11 +35,18 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     mapping(uint256 => address[]) public _chainStageSignatories;
     mapping(uint256 => address[]) public _chainStageSuppliers;
 
+    // token -> stage -> documents[]
+    mapping(uint256 => mapping(uint256 => string[]))
+        public _chainStageDocuments;
+
     mapping(uint256 => mapping(address => bool))
         public _chainStageSignatoriesExist;
 
     mapping(uint256 => mapping(address => bool))
         public _chainStageSuppliersExist;
+
+    mapping(uint256 => mapping(uint256 => mapping(string => bool)))
+        public _chainStageDocumentsExist;
 
     // token -> stage-> complete
     mapping(uint256 => mapping(uint256 => ChainStageState)) _tokenStageStates;
@@ -290,6 +303,44 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         returns (address[] memory stages)
     {
         return _chainStageSignatories[stage];
+    }
+
+    function getTokenStageDocuments(uint256 token, uint256 stage)
+        public
+        view
+        returns (string[] memory documents)
+    {
+        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+
+        return _chainStageDocuments[token][stage];
+    }
+
+    function addTokenStageDocument(
+        uint256 token,
+        uint256 stage,
+        string memory docHash
+    ) public {
+        require(_stageCount >= stage, "stage does not exist");
+
+        require(
+            _tokenStageStates[token][stage].hasStarted,
+            "The stage has not started"
+        );
+
+        require(
+            !_tokenStageStates[token][stage].isComplete,
+            "The stage is completed"
+        );
+
+        require(
+            !_chainStageDocumentsExist[token][stage][docHash],
+            "The document already exists for token on stage"
+        );
+
+        _chainStageDocuments[token][stage].push(docHash);
+        _chainStageDocumentsExist[token][stage][docHash] = true;
+
+        emit TokenStageDocumentAdded(token, stage, docHash);
     }
 
     function setTokenLimit(uint256 tokenLimit) public {
