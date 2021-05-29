@@ -61,7 +61,7 @@ function App() {
     localProvider,
     1
   );
-  console.log(injectedProvider);
+  console.log(newSupplyChainEvents);
 
   return (
     <div className="App">
@@ -79,7 +79,7 @@ function App() {
       <Router>
         <Switch>
           <Route path="/supply-chain">
-            {injectedProvider && (
+            {injectedProvider && writeContracts && (
               <MainSupplyChain
                 readContracts={readContracts}
                 writeContracts={writeContracts}
@@ -100,6 +100,7 @@ function App() {
                 mainnetProvider={mainnetProvider}
                 userAddress={address}
                 injectedProvider={injectedProvider}
+                useEventListener={useEventListener}
               />
             )}
           </Route>

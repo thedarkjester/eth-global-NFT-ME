@@ -26,7 +26,13 @@ import Container from "../../../components/Styled/Container";
 import { ethers } from "ethers";
 
 export default function MainContract(props) {
-  const { userAddress, tx, injectedProvider, writeContracts } = props;
+  const {
+    userAddress,
+    tx,
+    injectedProvider,
+    writeContracts,
+    useEventListener,
+  } = props;
   const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
   const [selectedStage, setSelectedStage] = useState("");
@@ -65,10 +71,21 @@ export default function MainContract(props) {
     abi,
     injectedProvider.getSigner()
   );
+  const newStageEvents = useEventListener(
+    nftContract,
+    "SupplyChainAsNFT",
+    "StageAdded",
+    injectedProvider,
+    1
+  );
+
+  console.log(newStageEvents);
   useEffect(() => {
+    setLoading(true);
     async function getStages() {
       return await nftContract.getStages();
     }
+
     getStages().then((i) => {
       const tableFormat = [];
       for (let x = 0; x < i.length; x++) {
@@ -77,7 +94,7 @@ export default function MainContract(props) {
       }
       setStages(tableFormat);
     });
-  }, []);
+  }, [injectedProvider, newStageEvents]);
 
   async function uploadData() {
     // loop over each stage, then loop over each signatory
@@ -158,7 +175,7 @@ export default function MainContract(props) {
                   color="primary"
                   iconType="plus"
                   onClick={async () => {
-                    await nftContract.functions.addStage(data.name);
+                    await tx(nftContract.functions.addStage(data.name));
                   }}
                 >
                   Add New Stage

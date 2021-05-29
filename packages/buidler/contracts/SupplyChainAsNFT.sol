@@ -11,6 +11,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
+    event StageAdded(uint256 id, string name);
 
     event SupplierAdded(uint256 stage, address addr);
     event SupplierPaid(
@@ -285,7 +286,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         _chainStages[_stageCount].id = _stageCount + 1;
         _chainStages[_stageCount].name = name;
-
+        emit StageAdded(_stageCount + 1, name);
         _stageCount++;
     }
 
