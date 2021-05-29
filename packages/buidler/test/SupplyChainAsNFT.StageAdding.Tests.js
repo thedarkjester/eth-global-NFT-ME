@@ -8,7 +8,7 @@ const {
 
 const SupplyChainAsNFT = artifacts.require("SupplyChainAsNFT");
 
-describe("SupplyChainAsNFT tests", function () {
+describe("SupplyChainAsNFT:AddStages tests", function () {
   let accounts;
   let supplyChainAsNFTInstance;
   before(async function () {
@@ -55,7 +55,7 @@ describe("SupplyChainAsNFT tests", function () {
     });
   });
 
-  describe("Signatories and ownership", function () {
+  describe("SupplyChainAsNFT:AddSignatories", function () {
 
     it("Should deploy my SupplyChainAsNFT", async function () {
       supplyChainAsNFTInstance = await SupplyChainAsNFT.new("test", "test");
@@ -93,8 +93,23 @@ describe("SupplyChainAsNFT tests", function () {
         await supplyChainAsNFTInstance.addStageSignatory(1, accounts[2]);
       });
 
+      it("Adds adds a supplier at 1", async function () {
+        await supplyChainAsNFTInstance.addStageSupplier(1, accounts[1]);
+      });
+
+      it("Adds adds a supplier at 1", async function () {
+        await supplyChainAsNFTInstance.addStageSupplier(1, accounts[2]);
+      });
+
       it("Stage signatory exists in the list of signatories", async function () {
         var response = await supplyChainAsNFTInstance.getStageSignatories(1);
+        assert.equal(response.length, 2);
+        assert.equal(response[0], accounts[1]);
+        assert.equal(response[1], accounts[2]);
+      });
+
+      it("Stage supplier exists in the list of signatories", async function () {
+        var response = await supplyChainAsNFTInstance.getStageSuppliers(1);
         assert.equal(response.length, 2);
         assert.equal(response[0], accounts[1]);
         assert.equal(response[1], accounts[2]);
@@ -108,8 +123,8 @@ describe("SupplyChainAsNFT tests", function () {
         await supplyChainAsNFTInstance.mint(accounts[0]);
       });
 
-      it("Adds fails to add a signatory at 1", async function () {
-        await catchRevert(supplyChainAsNFTInstance.addStageSignatory(1, accounts[2]));
+      it("Adds succeeds when adding a signatory at 1", async function () {
+        await supplyChainAsNFTInstance.addStageSignatory(1, accounts[2]);
       });
 
       it("mints twice", async function () {

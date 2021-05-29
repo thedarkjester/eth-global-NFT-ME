@@ -8,7 +8,7 @@ const {
 
 const SupplyChainAsNFT = artifacts.require("SupplyChainAsNFT");
 
-describe("SupplyChainAsNFT tests", function () {
+describe("SupplyChainAsNFT:Permissions tests", function () {
   let accounts;
   let supplyChainAsNFTInstance;
   before(async function () {

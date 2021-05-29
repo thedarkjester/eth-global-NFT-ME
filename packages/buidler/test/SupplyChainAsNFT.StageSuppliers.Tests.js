@@ -84,16 +84,10 @@ describe("SupplyChainAsNFT:StageSuppliers tests", function () {
         });
       });
 
-      it("fails when adding supplier for subsequent stage that is not a signatory from the previous stage", async function () {
+      it("fails when adding supplier for subsequent stage that is not the owner signatory from the previous stage", async function () {
         await catchRevert(
           supplyChainAsNFTInstance.addStageSupplier(2, supplierB, {
             from: signatoryC,
-          })
-        );
-
-        await catchRevert(
-          supplyChainAsNFTInstance.addStageSupplier(2, supplierB, {
-            from: contractOwner,
           })
         );
       });
@@ -102,19 +96,19 @@ describe("SupplyChainAsNFT:StageSuppliers tests", function () {
     describe("tests happy path functionality", () => {
       it("allows previous stage signatory to set supplier on next stage", async function () {
         await supplyChainAsNFTInstance.addStageSupplier(2, supplierB, {
-          from: signatoryA,
+          from: contractOwner,
         });
 
         await supplyChainAsNFTInstance.addStageSupplier(2, supplierC, {
-          from: signatoryA,
+          from: contractOwner,
         });
 
         await supplyChainAsNFTInstance.addStageSupplier(3, supplierD, {
-          from: signatoryB,
+          from: contractOwner,
         });
 
         await supplyChainAsNFTInstance.addStageSupplier(3, supplierE, {
-          from: signatoryC,
+          from: contractOwner,
         });
       });
 

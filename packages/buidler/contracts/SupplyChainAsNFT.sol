@@ -2,15 +2,20 @@ pragma solidity >=0.6.0 <0.7.0;
 pragma experimental ABIEncoderV2;
 
 import "./ERC721MinterPauser.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 
 contract SupplyChainAsNFT is ERC721MinterPauser {
+    using SafeMath for uint256;
+
     event TokenLimitSet(uint256 tokenLimit);
+    event StageStarted(uint256 token, uint256 stage);
+    event SupplierAdded(uint256 stage, address addr);
 
     bool private tokenLimitSet;
-
     uint256 private _stageCount;
 
     mapping(uint256 => ChainStage) public _chainStages;
+    mapping(address => uint256) _owedBalances;
 
     mapping(uint256 => address[]) public _chainStageSignatories;
     mapping(uint256 => address[]) public _chainStageSuppliers;
@@ -21,8 +26,8 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     mapping(uint256 => mapping(address => bool))
         public _chainStageSuppliersExist;
 
-    // tokenId -> stage->complete
-    mapping(uint256 => mapping(uint256 => ChainStageState)) tokenStageStates;
+    // token -> stage-> complete
+    mapping(uint256 => mapping(uint256 => ChainStageState)) _tokenStageStates;
 
     struct ChainStage {
         uint256 id;
@@ -34,7 +39,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         bool hasStarted;
         bool isComplete;
         address supplier;
-        address signer;
+        address signatory;
     }
 
     constructor(string memory name, string memory symbol)
@@ -52,46 +57,118 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     // ROB MISSING FUNCTIONS: Store IPFS data per token->stage + list function
 
-    // ROB see these two in the ERC721MinterPauser FOR REFERENCE
-    // uint256 internal _tokenLimit = 1;
-    // uint256 internal currentTokenMintCount = 0;
-
     // ROB missing - function assignSupplier() {} - ROB this will assign the supplier to the stage with their fee (can be 0) - has to be in the list of stage suppliers
     // can't reassign (for now)
 
     // ROB - Withdraw balance (Address checking their balance in stored mapping - not there yet)
-    // ROB function signStage(tokenId, stage, addressOfNextSupplier, fee) {} - ROB - only the currently assigned signatory can sign (e.g. I requested it)
+    // ROB function signStage(token, stage, addressOfNextSupplier, fee) {} - ROB - only the currently assigned signatory can sign (e.g. I requested it)
     // completes current stage, assigns supplier for next stage with fee
     // can't sign stage without paying the fee if it is required
     // needs to be allocated to the supplier balances mapping(address=>uint256)
     // if this is the final stage being signed, then the last stage is just marked as complete
     // we should now be allowed to transfer the NFT :D
 
-    function assignStage(
-        uint256 tokenId,
+    function startStage(
+        uint256 token,
         uint256 stage,
-        address assignee
-    ) public {
-        require(currentTokenMintCount >= tokenId, "token does not exist");
-
+        address supplier,
+        address signatory,
+        uint256 supplierFee
+    ) public payable {
+        require(_stageCount >= stage, "stage does not exist");
+        require(currentTokenMintCount >= token, "token does not exist");
         require(
-            !tokenStageStates[tokenId][stage].isComplete,
+            !_tokenStageStates[token][stage].hasStarted,
+            "The stage is already started"
+        );
+        require(
+            !_tokenStageStates[token][stage].isComplete,
             "The stage is already complete"
         );
 
         if (stage == 1) {
             require(
                 hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-                "Only owners can assign first state"
+                "Only owners can assign first supplier"
             );
         }
 
         require(
-            _chainStageSignatoriesExist[stage][assignee],
-            "assignee is not in the collection of signatories"
+            _chainStageSignatoriesExist[stage][signatory],
+            "signatory is not in the collection of signatories"
         );
 
-        //ROB: - This needs to set the address of who is signing the state (aka the approver)
+        require(
+            _chainStageSuppliersExist[stage][supplier],
+            "supplier is not in the collection of suppliers"
+        );
+
+        allStagesHaveSuppliersAndSignatories();
+
+        if (stage > 1) {
+            if (_tokenStageStates[token][stage].signatory == _msgSender()) {
+                require(
+                    _tokenStageStates[token][stage - 1].supplierFee ==
+                        msg.value,
+                    "The fee for the previous stage was not paid"
+                );
+
+                completeStage(token, stage);
+            } else {
+                require(
+                    _tokenStageStates[token][stage - 1].isComplete,
+                    "The previous stage is not complete"
+                );
+            }
+        }
+
+        _tokenStageStates[token][stage].supplier = supplier;
+        _tokenStageStates[token][stage].signatory = signatory;
+        _tokenStageStates[token][stage].supplierFee = supplierFee;
+        _tokenStageStates[token][stage].hasStarted = true;
+
+        emit StageStarted(token, stage);
+    }
+
+    function allStagesHaveSuppliersAndSignatories() private view {
+        for (uint256 i = 1; i <= _stageCount; i++) {
+            require(
+                _chainStageSuppliers[i].length > 0,
+                "Not all stages have suppliers"
+            );
+            require(
+                _chainStageSignatories[i].length > 0,
+                "Not all stages have signatories"
+            );
+        }
+    }
+
+    function CompleteFinalStage(uint256 token, uint256 stage) public payable {
+        require(_stageCount >= stage, "stage does not exist");
+        require(currentTokenMintCount >= token, "token does not exist");
+        require(
+            !_tokenStageStates[token][stage].hasStarted,
+            "The stage is already started"
+        );
+        require(
+            !_tokenStageStates[token][stage].isComplete,
+            "The stage is already complete"
+        );
+        require(
+            _chainStageSignatoriesExist[stage][_msgSender()],
+            "signatory is not in the collection of signatories"
+        );
+        require(
+            _tokenStageStates[token][stage].supplierFee == msg.value,
+            "The fee for the final stage was not paid"
+        );
+
+        completeStage(token, stage);
+    }
+
+    function completeStage(uint256 token, uint256 stage) private {
+        _tokenStageStates[token][stage].isComplete = true;
+        _owedBalances[_tokenStageStates[token][stage].supplier].add(msg.value);
     }
 
     function getStages() public view returns (string[] memory stages) {
@@ -129,33 +206,17 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function addStageSupplier(uint256 stage, address addr) public {
-        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
-
         require(
-            currentTokenMintCount == 0,
-            "Tokens have been minted, stages cannot be added"
+            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
+            "SupplyChainAsNFT: must have default admin role to addStageSupplier"
         );
 
-        // ??? is it more costly to abstract this to a param ???
-        address msgSender = _msgSender();
-
-        if (stage == 1) {
-            require(
-                hasRole(DEFAULT_ADMIN_ROLE, msgSender),
-                "Only owners can add first stage supplier"
-            );
-        } else {
-            // stage - 1 OOB exception covered by initial require
-            require(
-                _chainStageSignatoriesExist[stage - 1][msgSender],
-                "Supplier can only be set for a stage from one of previous stage's approver"
-            );
-        }
-
-        // ??? can a supplier fulfill multiple stages ???
+        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
 
         _chainStageSuppliers[stage].push(addr);
         _chainStageSuppliersExist[stage][addr] = true;
+
+        emit SupplierAdded(stage, addr);
     }
 
     function getStageSuppliers(uint256 stage)
@@ -171,12 +232,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     function addStageSignatory(uint256 stage, address addr) public {
         require(
             hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "SupplyChainAsNFT: must have default admin role to addStage"
-        );
-
-        require(
-            currentTokenMintCount == 0,
-            "Tokens have been minted, stages cannot be added"
+            "SupplyChainAsNFT: must have default admin role to addStageSignatory"
         );
 
         require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
@@ -230,15 +286,19 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId
+        uint256 token
     ) internal override(ERC721MinterPauser) {
-        if (_stageCount > 0 && tokenStageStates[tokenId][0].hasStarted) {
+        if (_stageCount > 0) {
+            allStagesHaveSuppliersAndSignatories();
+        }
+
+        if (_stageCount > 0 && _tokenStageStates[token][0].hasStarted) {
             require(
-                tokenStageStates[tokenId][_stageCount].isComplete,
+                _tokenStageStates[token][_stageCount].isComplete,
                 "not all stages are complete"
             );
         }
 
-        super._beforeTokenTransfer(from, to, tokenId);
+        super._beforeTokenTransfer(from, to, token);
     }
 }
