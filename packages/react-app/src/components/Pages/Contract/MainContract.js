@@ -19,11 +19,11 @@ import {
   euiDragDropReorder,
   EuiHorizontalRule,
 } from "@elastic/eui";
+import { ethers } from "ethers";
 //import SipplyChainAsNFT ABI
 import { abi } from "../../../constants";
 import Container from "../../../components/Styled/Container";
-
-import { ethers } from "ethers";
+import { AppLink } from "../../../components/Link";
 
 export default function MainContract(props) {
   const {
@@ -79,7 +79,6 @@ export default function MainContract(props) {
     1
   );
 
-  console.log(newStageEvents);
   useEffect(() => {
     setLoading(true);
     async function getStages() {
@@ -122,6 +121,19 @@ export default function MainContract(props) {
 
   if (!injectedProvider) return "loading";
 
+  const actions = [
+    {
+      render: (item) => {
+        const stageId =
+          Number(
+            selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
+          ) + 1;
+        return (
+          <AppLink to={`/stage/${stageId}?contract=${address}&`}>Start</AppLink>
+        );
+      },
+    },
+  ];
   const columns = [
     {
       field: "id",
@@ -147,6 +159,7 @@ export default function MainContract(props) {
         </EuiLink>
       ),
     },
+    { name: "View", actions },
   ];
 
   return (

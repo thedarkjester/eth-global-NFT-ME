@@ -26,6 +26,7 @@ import {
 import MainSupplyChain from "./components/Pages/SupplyChain/MainSupplyChain";
 import MainContract from "./components/Pages/Contract/MainContract";
 import IpfsSample from "./components/Pages/IPFS/IpfsSample";
+import MainStage from "./components/Pages/Stage/MainStage";
 
 const mainnetProvider = new ethers.providers.JsonRpcProvider(
   "http://localhost:8545/"
@@ -82,7 +83,6 @@ function App() {
               <MainSupplyChain
                 readContracts={readContracts}
                 writeContracts={writeContracts}
-                // newSupplyChainEvents={newSupplyChainEvents}
                 tx={tx}
                 userAddress={address}
               />
@@ -94,6 +94,20 @@ function App() {
                 readContracts={readContracts}
                 writeContracts={writeContracts}
                 // newSupplyChainEvents={newSupplyChainEvents}
+                tx={tx}
+                localProvider={localProvider}
+                mainnetProvider={mainnetProvider}
+                userAddress={address}
+                injectedProvider={injectedProvider}
+                useEventListener={useEventListener}
+              />
+            )}
+          </Route>
+          <Route path="/stage/:id">
+            {injectedProvider && (
+              <MainStage
+                readContracts={readContracts}
+                writeContracts={writeContracts}
                 tx={tx}
                 localProvider={localProvider}
                 mainnetProvider={mainnetProvider}
