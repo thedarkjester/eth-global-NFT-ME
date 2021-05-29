@@ -17,6 +17,7 @@ import {
   EuiIcon,
   EuiPanel,
   euiDragDropReorder,
+  EuiHorizontalRule,
 } from "@elastic/eui";
 //import SipplyChainAsNFT ABI
 import { abi } from "../../../constants";
@@ -26,7 +27,7 @@ import { ethers } from "ethers";
 
 export default function MainContract(props) {
   const { userAddress, tx, injectedProvider, writeContracts } = props;
-  const [data, setData] = useState({});
+  const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
   const [selectedStage, setSelectedStage] = useState(null);
 
@@ -148,6 +149,7 @@ export default function MainContract(props) {
         <EuiFlexGroup>
           <EuiFlexItem>
             <EuiText>Add Stage Supplier</EuiText>
+            <EuiHorizontalRule />
             <EuiButton
               style={{ width: "30%" }}
               onClick={() => {
@@ -158,108 +160,113 @@ export default function MainContract(props) {
               + Supplier
             </EuiButton>
             <EuiSpacer />
-            <EuiDragDropContext onDragEnd={onStageDragEnd}>
-              <EuiDroppable
-                droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
-                spacing="m"
-                withPanel
-              >
-                {stageList.map(({ address }, idx) => (
-                  <EuiDraggable
-                    spacing="m"
-                    key={idx + Math.random()}
-                    index={idx}
-                    draggableId={(Math.random() + idx).toString()}
-                    customDragHandle={true}
-                  >
-                    {(provided) => (
-                      <EuiPanel className="custom" paddingSize="m">
-                        <EuiFlexGroup>
-                          <EuiFlexItem grow={false}>
-                            <div
-                              {...provided.dragHandleProps}
-                              aria-label="Drag Handle"
-                            >
-                              <EuiIcon type="grab" />
-                            </div>
-                          </EuiFlexItem>
-                          <EuiFlexItem>
-                            <EuiFormRow label="Address">
-                              <EuiFieldText
-                                value={stageList[idx].address}
-                                onChange={(e) => {
-                                  const newList = [...stageList];
-                                  newList[idx].address = e.target.value;
-                                  setStageList(newList);
-                                }}
-                              />
-                            </EuiFormRow>
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiPanel>
-                    )}
-                  </EuiDraggable>
-                ))}
-              </EuiDroppable>
-            </EuiDragDropContext>
+            {stageList.length > 0 && (
+              <EuiDragDropContext onDragEnd={onStageDragEnd}>
+                <EuiDroppable
+                  droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
+                  spacing="m"
+                  withPanel
+                >
+                  {stageList.map(({ address }, idx) => (
+                    <EuiDraggable
+                      spacing="m"
+                      key={idx + Math.random()}
+                      index={idx}
+                      draggableId={(Math.random() + idx).toString()}
+                      customDragHandle={true}
+                    >
+                      {(provided) => (
+                        <EuiPanel className="custom" paddingSize="m">
+                          <EuiFlexGroup>
+                            <EuiFlexItem grow={false}>
+                              <div
+                                {...provided.dragHandleProps}
+                                aria-label="Drag Handle"
+                              >
+                                <EuiIcon type="grab" />
+                              </div>
+                            </EuiFlexItem>
+                            <EuiFlexItem>
+                              <EuiFormRow label="Address">
+                                <EuiFieldText
+                                  value={stageList[idx].address}
+                                  onChange={(e) => {
+                                    const newList = [...stageList];
+                                    newList[idx].address = e.target.value;
+                                    setStageList(newList);
+                                  }}
+                                />
+                              </EuiFormRow>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiPanel>
+                      )}
+                    </EuiDraggable>
+                  ))}
+                </EuiDroppable>
+              </EuiDragDropContext>
+            )}
           </EuiFlexItem>
 
           <EuiFlexItem>
             <EuiText>Add Stage Signatory</EuiText>
+            <EuiHorizontalRule />
             <EuiButton
               style={{ width: "30%" }}
               onClick={() => {
                 const d = { address: "" };
-                setSigList([...stageList, d]);
+                setSigList([...sigList, d]);
               }}
             >
               + Signatory
             </EuiButton>
             <EuiSpacer />
-            <EuiDragDropContext onDragEnd={onStageDragEnd}>
-              <EuiDroppable
-                droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
-                spacing="m"
-                withPanel
-              >
-                {sigList.map(({ address }, idx) => (
-                  <EuiDraggable
-                    spacing="m"
-                    key={idx + Math.random()}
-                    index={idx}
-                    draggableId={(Math.random() + idx).toString()}
-                    customDragHandle={true}
-                  >
-                    {(provided) => (
-                      <EuiPanel className="custom" paddingSize="m">
-                        <EuiFlexGroup>
-                          <EuiFlexItem grow={false}>
-                            <div
-                              {...provided.dragHandleProps}
-                              aria-label="Drag Handle"
-                            >
-                              <EuiIcon type="grab" />
-                            </div>
-                          </EuiFlexItem>
-                          <EuiFlexItem>
-                            <EuiFormRow label="Address">
-                              <EuiFieldText
-                                value={sigList[idx].address}
-                                onChange={(e) => {
-                                  const newList = [...sigList];
-                                  newList[idx].address = e.target.value;
-                                  setSigList(newList);
-                                }}
-                              />
-                            </EuiFormRow>
-                          </EuiFlexItem>
-                        </EuiFlexGroup>
-                      </EuiPanel>
-                    )}
-                  </EuiDraggable>
-                ))}
-              </EuiDroppable>
-            </EuiDragDropContext>
+            {sigList.length > 0 && (
+              <EuiDragDropContext onDragEnd={onSigDragEnd}>
+                <EuiDroppable
+                  droppableId="CUSTOM_HANDLE_DROPPABLE_AREA"
+                  spacing="m"
+                  withPanel
+                >
+                  {sigList.map(({ address }, idx) => (
+                    <EuiDraggable
+                      spacing="m"
+                      key={idx + Math.random()}
+                      index={idx}
+                      draggableId={(Math.random() + idx).toString()}
+                      customDragHandle={true}
+                    >
+                      {(provided) => (
+                        <EuiPanel className="custom" paddingSize="m">
+                          <EuiFlexGroup>
+                            <EuiFlexItem grow={false}>
+                              <div
+                                {...provided.dragHandleProps}
+                                aria-label="Drag Handle"
+                              >
+                                <EuiIcon type="grab" />
+                              </div>
+                            </EuiFlexItem>
+                            <EuiFlexItem>
+                              <EuiFormRow label="Address">
+                                <EuiFieldText
+                                  value={sigList[idx].address}
+                                  onChange={(e) => {
+                                    const newList = [...sigList];
+                                    newList[idx].address = e.target.value;
+                                    setSigList(newList);
+                                  }}
+                                />
+                              </EuiFormRow>
+                            </EuiFlexItem>
+                          </EuiFlexGroup>
+                        </EuiPanel>
+                      )}
+                    </EuiDraggable>
+                  ))}
+                </EuiDroppable>
+              </EuiDragDropContext>
+            )}
           </EuiFlexItem>
         </EuiFlexGroup>
       </Container>
