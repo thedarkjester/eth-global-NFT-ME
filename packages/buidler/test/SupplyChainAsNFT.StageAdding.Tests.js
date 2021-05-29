@@ -75,7 +75,9 @@ describe("SupplyChainAsNFT tests", function () {
       });
 
       it("Adds fails to add a signatory at 2", async function () {
-        await catchRevert(supplyChainAsNFTInstance.addStageSignatory(0, accounts[1]));
+        await catchRevert(
+          supplyChainAsNFTInstance.addStageSignatory(2, accounts[1])
+        );
       });
 
       it("Stage signatory does not exist in the list of signatories", async function () {

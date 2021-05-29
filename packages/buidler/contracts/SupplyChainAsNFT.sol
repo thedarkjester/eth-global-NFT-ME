@@ -129,7 +129,43 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function addStageSupplier(uint256 stage, address addr) public {
-        // ROB - similar to signatories - tests and logic apply
+        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+
+        require(
+            currentTokenMintCount == 0,
+            "Tokens have been minted, stages cannot be added"
+        );
+
+        // ??? is it more costly to abstract this to a param ???
+        address msgSender = _msgSender();
+
+        if (stage == 1) {
+            require(
+                hasRole(DEFAULT_ADMIN_ROLE, msgSender),
+                "Only owners can add first stage supplier"
+            );
+        } else {
+            // stage - 1 OOB exception covered by initial require
+            require(
+                _chainStageSignatoriesExist[stage - 1][msgSender],
+                "Supplier can only be set for a stage from one of previous stage's approver"
+            );
+        }
+
+        // ??? can a supplier fulfill multiple stages ???
+
+        _chainStageSuppliers[stage].push(addr);
+        _chainStageSuppliersExist[stage][addr] = true;
+    }
+
+    function getStageSuppliers(uint256 stage)
+        public
+        view
+        returns (address[] memory stages)
+    {
+        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+
+        return _chainStageSuppliers[stage];
     }
 
     function addStageSignatory(uint256 stage, address addr) public {
