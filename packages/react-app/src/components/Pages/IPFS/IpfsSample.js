@@ -14,6 +14,7 @@ const ipfs = ipfsAPI({
 export default function IpfsSample(props) {
   const { TextArea } = Input;
   const { BufferList } = require("bl");
+  console.log(props.readContracts);
   const myAttestation = useContractReader(
     props.readContracts,
     "Attestor",

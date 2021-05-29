@@ -55,6 +55,7 @@ export default function MainSupplyChain(props) {
                 color="primary"
                 iconType="plus"
                 onClick={() => {
+                  console.log(tx);
                   tx(
                     writeContracts["SupplyChainFactory"].addSupplyChain(
                       data.name,
@@ -71,7 +72,9 @@ export default function MainSupplyChain(props) {
         </EuiFlexItem>
       </EuiFlexGroup>
       <EuiFlexGroup>
-        <EuiFlexItem>{props.newSupplyChainEvents.map((i) => i)}</EuiFlexItem>
+        <EuiFlexItem>
+          {props.newSupplyChainEvents.map((i) => console.table(i))}
+        </EuiFlexItem>
       </EuiFlexGroup>
     </Container>
   );

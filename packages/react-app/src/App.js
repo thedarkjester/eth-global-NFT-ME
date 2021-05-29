@@ -37,6 +37,7 @@ const localProvider = new ethers.providers.JsonRpcProvider(
     : "http://localhost:8545"
 );
 
+console.log("providers", mainnetProvider, localProvider);
 function App() {
   const [address, setAddress] = useState();
   const [injectedProvider, setInjectedProvider] = useState();
@@ -47,6 +48,8 @@ function App() {
 
   const readContracts = useContractLoader(localProvider);
   const writeContracts = useContractLoader(injectedProvider);
+  console.log(tx);
+  console.log(readContracts, writeContracts);
 
   const newSupplyChainEvents = useEventListener(
     readContracts,
@@ -55,6 +58,17 @@ function App() {
     localProvider,
     1
   );
+
+  // const loadWeb3Modal = useCallback(async () => {
+  //   const provider = await web3Modal.connect();
+  //   setInjectedProvider(new Web3Provider(provider));
+  // }, [setInjectedProvider]);
+
+  // useEffect(() => {
+  //   if (web3Modal.cachedProvider) {
+  //     loadWeb3Modal();
+  //   }
+  // }, [loadWeb3Modal]);
 
   return (
     <div className="App">
@@ -73,7 +87,12 @@ function App() {
       <Router>
         <Switch>
           <Route path="/supply-chain">
-            <MainSupplyChain newSupplyChainEvents={newSupplyChainEvents} />
+            <MainSupplyChain
+              readContracts={readContracts}
+              writeContracts={writeContracts}
+              newSupplyChainEvents={newSupplyChainEvents}
+              tx={tx}
+            />
           </Route>
           <Route path="/ipfs">
             {
@@ -83,6 +102,7 @@ function App() {
                 address={address}
                 readContracts={readContracts}
                 writeContracts={writeContracts}
+                tx={tx}
               />
             }
           </Route>
