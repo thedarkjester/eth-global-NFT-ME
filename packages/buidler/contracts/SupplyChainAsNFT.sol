@@ -222,33 +222,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         stages = safeStages;
     }
 
-    /// @notice Retrieves a list of all the stage id, name, address
-    /// @return names array
-    /// @return addresses array
-    // function getStageData()
-    //     public
-    //     view
-    //     returns (string[] memory names, uint256[] memory ids)
-    // {
-
-    //     string[] memory safeNames = new string[](_chainStages.length);
-    //     uint256[] memory ids = new uint256[](_chainStages.length);
-
-    //     for (uint256 i = 0; i < _chainStages.length; i++) {
-    //         if (!isSafeString(_supplyChains[i].name())) {
-    //             safeNames[i] = "***";
-    //         } else {
-    //             safeNames[i] = _supplyChains[i].name();
-    //         }
-
-    //         workingAddresses[i] = address(_supplyChains[i]);
-    //     }
-
-    //     names = safeNames;
-    //     addresses = workingAddresses;
-    // }
-
-
     function addStageSupplier(uint256 stage, address addr) public {
         require(
             hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
@@ -262,6 +235,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         emit SupplierAdded(stage, addr);
     }
+
     function getStageSuppliers(uint256 stage)
         public
         view
@@ -343,6 +317,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             }
         }
     }
+
     /// @notice Determine if the text is safe for use
     /// @dev Each character is individually checked
     /// @param str The string to interrogate
