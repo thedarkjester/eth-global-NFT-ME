@@ -105,13 +105,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         require(_stageCount >= stage, "stage does not exist");
         require(currentTokenMintCount >= token, "token does not exist");
 
-        if (stage > 1) {
-            require(
-                !_tokenStageStates[token][stage - 1].isComplete,
-                "The previous state is not complete"
-            );
-        }
-
         require(
             !_tokenStageStates[token][stage].hasStarted,
             "The stage is already started"
