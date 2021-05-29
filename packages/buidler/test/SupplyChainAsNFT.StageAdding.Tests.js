@@ -106,13 +106,12 @@ describe("SupplyChainAsNFT tests", function () {
         await supplyChainAsNFTInstance.mint(accounts[0]);
       });
 
-      it("mints twice", async function () {
-        var response = await supplyChainAsNFTInstance.mint(accounts[0]);
-        console.log(response);
-      });
-
       it("Adds fails to add a signatory at 1", async function () {
         await catchRevert(supplyChainAsNFTInstance.addStageSignatory(1, accounts[2]));
+      });
+
+      it("mints twice", async function () {
+        var response = await supplyChainAsNFTInstance.mint(accounts[0]);
       });
     });
   });

@@ -13,6 +13,8 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     mapping(uint256 => ChainStage) public _chainStages;
 
     mapping(uint256 => address[]) public _chainStageSignatories;
+    mapping(uint256 => mapping(address => bool))
+        public _chainStageSignatoriesExist;
 
     // tokenId -> stage->complete
     mapping(uint256 => mapping(uint256 => ChainStageState)) tokenStageStates;
@@ -32,6 +34,31 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         public
         ERC721MinterPauser(name, symbol)
     {}
+
+    function assignStage(
+        uint256 tokenId,
+        uint256 stage,
+        address assignee
+    ) public {
+        require(currentTokenMintCount >= tokenId, "token does not exist");
+
+        require(
+            !tokenStageStates[tokenId][stage].isComplete,
+            "The stage is already complete"
+        );
+
+        if (stage == 1) {
+            require(
+                hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
+                "Only owners can assign first state"
+            );
+        }
+
+        require(
+            _chainStageSignatoriesExist[stage][assignee],
+            "assignee is not in the collection of signatories"
+        );
+    }
 
     function getStages() public view returns (string[] memory stages) {
         string[] memory safeStages = new string[](_stageCount);
@@ -81,6 +108,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
 
         _chainStageSignatories[stage].push(addr);
+        _chainStageSignatoriesExist[stage][addr] = true;
     }
 
     function getStageSignatories(uint256 stage)
