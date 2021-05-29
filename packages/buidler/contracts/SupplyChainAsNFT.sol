@@ -222,25 +222,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         stages = safeStages;
     }
 
-    /// @notice Determine if the text is safe for use
-    /// @dev Each character is individually checked
-    /// @param str The string to interrogate
-    /// @return Boolean indicating if the text contains unexpected characters
-    function isSafeString(string memory str) private pure returns (bool) {
-        bytes memory b = bytes(str);
 
-        for (uint256 i; i < b.length; i++) {
-            bytes1 char = b[i];
-            if (
-                !(char >= 0x30 && char <= 0x39) && //9-0
-                !(char >= 0x41 && char <= 0x5A) && //A-Z
-                !(char >= 0x61 && char <= 0x7A) && //a-z
-                !(char == 0x2E) &&
-                !(char == 0x20) // ." "
-            ) return false;
-        }
-        return true;
-    }
 
     function addStageSupplier(uint256 stage, address addr) public {
         require(
@@ -255,7 +237,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         emit SupplierAdded(stage, addr);
     }
-
     function getStageSuppliers(uint256 stage)
         public
         view
@@ -264,6 +245,23 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
 
         return _chainStageSuppliers[stage];
+    }
+
+    function addStage(string memory name) public {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
+            "SupplyChainAsNFT: must have default admin role to addStage"
+        );
+
+        require(
+            currentTokenMintCount == 0,
+            "Tokens have been minted, stages cannot be added"
+        );
+
+        _chainStages[_stageCount].id = _stageCount + 1;
+        _chainStages[_stageCount].name = name;
+
+        _stageCount++;
     }
 
     function addStageSignatory(uint256 stage, address addr) public {
@@ -284,23 +282,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         returns (address[] memory stages)
     {
         return _chainStageSignatories[stage];
-    }
-
-    function addStage(string memory name) public {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "SupplyChainAsNFT: must have default admin role to addStage"
-        );
-
-        require(
-            currentTokenMintCount == 0,
-            "Tokens have been minted, stages cannot be added"
-        );
-
-        _chainStages[_stageCount].id = _stageCount + 1;
-        _chainStages[_stageCount].name = name;
-
-        _stageCount++;
     }
 
     function setTokenLimit(uint256 tokenLimit) public {
@@ -336,5 +317,24 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
                 super._beforeTokenTransfer(from, to, token);
             }
         }
+    }
+    /// @notice Determine if the text is safe for use
+    /// @dev Each character is individually checked
+    /// @param str The string to interrogate
+    /// @return Boolean indicating if the text contains unexpected characters
+    function isSafeString(string memory str) private pure returns (bool) {
+        bytes memory b = bytes(str);
+
+        for (uint256 i; i < b.length; i++) {
+            bytes1 char = b[i];
+            if (
+                !(char >= 0x30 && char <= 0x39) && //9-0
+                !(char >= 0x41 && char <= 0x5A) && //A-Z
+                !(char >= 0x61 && char <= 0x7A) && //a-z
+                !(char == 0x2E) &&
+                !(char == 0x20) // ." "
+            ) return false;
+        }
+        return true;
     }
 }

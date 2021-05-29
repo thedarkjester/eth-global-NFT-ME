@@ -61,6 +61,7 @@ function App() {
     localProvider,
     1
   );
+  console.log(injectedProvider);
 
   return (
     <div className="App">
@@ -78,25 +79,29 @@ function App() {
       <Router>
         <Switch>
           <Route path="/supply-chain">
-            <MainSupplyChain
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              newSupplyChainEvents={newSupplyChainEvents}
-              tx={tx}
-              userAddress={address}
-            />
+            {injectedProvider && (
+              <MainSupplyChain
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                newSupplyChainEvents={newSupplyChainEvents}
+                tx={tx}
+                userAddress={address}
+              />
+            )}
           </Route>
           <Route path="/contract/:address">
-            <MainContract
-              readContracts={readContracts}
-              writeContracts={writeContracts}
-              newSupplyChainEvents={newSupplyChainEvents}
-              tx={tx}
-              localProvider={localProvider}
-              mainnetProvider={mainnetProvider}
-              userAddress={address}
-              injectedProvider={injectedProvider}
-            />
+            {injectedProvider && (
+              <MainContract
+                readContracts={readContracts}
+                writeContracts={writeContracts}
+                newSupplyChainEvents={newSupplyChainEvents}
+                tx={tx}
+                localProvider={localProvider}
+                mainnetProvider={mainnetProvider}
+                userAddress={address}
+                injectedProvider={injectedProvider}
+              />
+            )}
           </Route>
           <Route path="/ipfs">
             {

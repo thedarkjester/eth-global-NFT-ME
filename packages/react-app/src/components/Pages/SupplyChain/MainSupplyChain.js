@@ -21,23 +21,21 @@ export default function MainSupplyChain(props) {
   const [contracts, setContracts] = useState([]);
 
   if (!writeContracts) return "Loading..";
-  useEffect(() => {
-    if (!writeContracts) {
-      contracts2().then((i) => {
-        const names = i.names;
-        const address = i.addresses;
-        const tableFormat = [];
-        for (let x = 0; x < i[0].length; x++) {
-          const d = { name: names[x], address: address[x] };
-          tableFormat.push(d);
-        }
-        setContracts(tableFormat);
-      });
+  // useEffect(() => {
+  async function contracts2() {
+    return await writeContracts["SupplyChainFactory"].getSupplyChainList();
+  }
+  contracts2().then((i) => {
+    const names = i.names;
+    const address = i.addresses;
+    const tableFormat = [];
+    for (let x = 0; x < i[0].length; x++) {
+      const d = { name: names[x], address: address[x] };
+      tableFormat.push(d);
     }
-    async function contracts2() {
-      return await writeContracts["SupplyChainFactory"].getSupplyChainList();
-    }
-  }, []);
+    setContracts(tableFormat);
+  });
+  // }, []);
 
   const columns = [
     {
