@@ -48,7 +48,7 @@ async function loadStageData(nftContract, selectedStage) {
 export default function MainStage(props) {
   const [stageSupplData, setStageSuppliersData] = useState([]);
   const [stageSigData, setStageSigData] = useState([]);
-
+  const [statusData, setStatusData] = useState([]);
   const { id, contract } = useParams();
   const { userAddress, tx, injectedProvider } = props;
 
@@ -83,10 +83,22 @@ export default function MainStage(props) {
         .getSignatoryView()
         .then((i) => console.log(i));
       const supView = await nftContract.getSupplierView();
-      console.log(supView, sigView);
+      //   console.log(supView, sigView);
     }
     getD();
   }, []);
+
+  useEffect(() => {
+    async function t() {
+      const promises = JSON.parse(stages).map((i) => {
+        return nftContract.getTokenStageState(id, i.id);
+      });
+      const v = await Promise.all(promises);
+      setStatusData(v);
+      return v;
+    }
+    t();
+  });
 
   function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
@@ -98,10 +110,42 @@ export default function MainStage(props) {
       }
     }
   }
-
+  console.log(JSON.parse(stages));
+  console.log("ADSFDSFADSFASD F", statusData);
+  const stagesFull = JSON.parse(stages).map((item, index) => {
+    const o = {
+      id: item.id,
+      name: item.name,
+      started: statusData[index]?.hasStarted,
+      completed: statusData[index]?.isComplete,
+    };
+    return o;
+  });
+  let columns = [
+    {
+      field: "name",
+      name: "name",
+      sortable: true,
+    },
+    {
+      field: "started",
+      name: "Started",
+      sortable: true,
+      truncateText: false,
+      //   render: (item) => <span>{item}</span>,
+    },
+    {
+      field: "completed",
+      name: "Completed",
+      sortable: true,
+      truncateText: false,
+      //   render: (item) => <span>{item}</span>,
+    },
+  ];
+  console.log(stagesFull);
   return (
     <Container>
-      {id} {contract} {stages}
+      {/* {id} {contract} {stages} */}
       {contractAddress}
       <EuiFlexGroup>
         <EuiFlexItem>
@@ -196,6 +240,14 @@ export default function MainStage(props) {
               </EuiButton>
             </EuiFormRow>
           </EuiForm>
+        </EuiFlexItem>
+        <EuiFlexItem>
+          Stages
+          <EuiBasicTable
+            columns={columns}
+            items={stagesFull}
+            style={{ marginLeft: 40, marginTop: 30 }}
+          />
         </EuiFlexItem>
       </EuiFlexGroup>
     </Container>
