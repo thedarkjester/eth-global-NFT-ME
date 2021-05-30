@@ -72,6 +72,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         address owner
     ) public ERC721MinterPauser(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, owner);
+        _setupRole(MINTER_ROLE, owner);
     }
 
     /// @notice Default fallback for non-data related deposits
@@ -437,6 +438,11 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         require(
             !_chainStageDocumentsExist[token][stage][docHash],
             "The document already exists for token on stage"
+        );
+
+        require(
+            _chainStageSuppliersExist[stage][_msgSender()],
+            "You must be a supplier of the stage"
         );
 
         _chainStageDocuments[token][stage].push(docHash);

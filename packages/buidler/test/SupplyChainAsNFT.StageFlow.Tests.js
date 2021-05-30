@@ -194,7 +194,6 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
 
       it("Fails to transfer token if final stage is not complete", async function () {
         let stageState = await supplyChainAsNFTInstance.getTokenStageState(1, 5);
-        console.log(stageState);
 
         await catchRevert(supplyChainAsNFTInstance.transferFrom(accounts[0], accounts[2], 1));
       });
@@ -205,12 +204,19 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
 
       it("returns getSupplierView view", async function () {
         var view = await supplyChainAsNFTInstance.getSupplierView({ from: accounts[6] });
-        console.log(view);
+
+        assert.equal(1, view.length);
+        assert.equal(1, view[0].token);
+        assert.equal(5, view[0].stage);
+        assert.equal(10000000, view[0].supplierFee);
       });
 
       it("returns getSignatoryView view", async function () {
         var view = await supplyChainAsNFTInstance.getSignatoryView({ from: accounts[6] });
-        console.log(view);
+        assert.equal(1, view.length);
+        assert.equal(1, view[0].token);
+        assert.equal(5, view[0].stage);
+        assert.equal(10000000, view[0].supplierFee);
       });
 
       it("Finalises stage 5 and updates supplier balance", async function () {
