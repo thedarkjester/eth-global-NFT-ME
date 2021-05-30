@@ -25,6 +25,21 @@ import Container from "../../../components/Styled/Container";
 
 import { ethers } from "ethers";
 
+async function loadData(nftContract) {
+  const response = await nftContract.getStages();
+  if (!response) {
+    return [];
+  }
+
+  const tableFormat = [];
+  for (let x = 0; x < response.length; x++) {
+    const d = { id: x + 1, name: response[x] + "_" + x };
+    tableFormat.push(d);
+  }
+
+  return tableFormat;
+}
+
 export default function MainContract(props) {
   const {
     userAddress,
@@ -83,17 +98,11 @@ export default function MainContract(props) {
   useEffect(() => {
     setLoading(true);
     async function getStages() {
-      return await nftContract.getStages();
+      const data = await loadData(nftContract);
+      setStages(data);
     }
 
-    getStages().then((i) => {
-      const tableFormat = [];
-      for (let x = 0; x < i.length; x++) {
-        const d = { id: x + 1, name: i[x] + "_" + x };
-        tableFormat.push(d);
-      }
-      setStages(tableFormat);
-    });
+    getStages();
   }, [injectedProvider]);
 
   async function uploadData() {
@@ -176,6 +185,11 @@ export default function MainContract(props) {
                   iconType="plus"
                   onClick={async () => {
                     await tx(nftContract.functions.addStage(data.name));
+
+                    setTimeout(async () => {
+                      const reloadedData = await loadData(nftContract);
+                      setStages(reloadedData);
+                    }, 2000);
                   }}
                 >
                   Add New Stage

@@ -7,7 +7,12 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 contract SupplyChainFactory is AccessControl {
     uint256 currentTokenMintCount;
 
-    event SupplyChainCreated(string name, string symbol, uint256 tokenLimit);
+    event SupplyChainCreated(
+        string name,
+        string symbol,
+        uint256 tokenLimit,
+        address supplyChainAddress
+    );
 
     constructor() public {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -77,6 +82,6 @@ contract SupplyChainFactory is AccessControl {
 
         _supplyChains.push(supplyChain);
 
-        emit SupplyChainCreated(name, symbol, tokenLimit);
+        emit SupplyChainCreated(name, symbol, tokenLimit, address(supplyChain));
     }
 }
