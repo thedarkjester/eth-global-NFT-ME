@@ -18,7 +18,7 @@ contract SupplyChainFactory is AccessControl {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
     }
 
-    // name + address for
+    // name + address for supply chains
     SupplyChainAsNFT[] _supplyChains;
 
     /// @notice Retrieves a list of all the supply chain names and addresses
@@ -78,6 +78,7 @@ contract SupplyChainFactory is AccessControl {
 
         SupplyChainAsNFT supplyChain =
             new SupplyChainAsNFT(name, symbol, _msgSender());
+
         supplyChain.setTokenLimit(tokenLimit);
 
         _supplyChains.push(supplyChain);

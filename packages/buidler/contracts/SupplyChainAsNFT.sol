@@ -388,17 +388,14 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         string memory docHash
     ) public {
         require(_stageCount >= stage, "no stage");
-
         require(_tokenStageStates[token][stage].hasStarted, "not started");
-
         require(!_tokenStageStates[token][stage].isComplete, "stage completed");
+        require(_chainStageSuppliersExist[stage][_msgSender()], "not supplier");
 
         require(
             !_chainStageDocumentsExist[token][stage][docHash],
             "document exists"
         );
-
-        require(_chainStageSuppliersExist[stage][_msgSender()], "not supplier");
 
         _chainStageDocuments[token][stage].push(docHash);
         _chainStageDocumentsExist[token][stage][docHash] = true;

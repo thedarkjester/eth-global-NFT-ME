@@ -29,6 +29,9 @@ export default function Header(props) {
           <EuiHeaderSectionItem style={{ paddingLeft: 15 }}>
             <Link isHeaderLink to="/ipfs" title="IPFS" />
           </EuiHeaderSectionItem>
+          <EuiHeaderSectionItem style={{ paddingLeft: 15 }}>
+            <Link isHeaderLink to="/mynfts" title="My NFTs" />
+          </EuiHeaderSectionItem>
         </EuiHeaderSection>
 
         <EuiHeaderSection side="right">
