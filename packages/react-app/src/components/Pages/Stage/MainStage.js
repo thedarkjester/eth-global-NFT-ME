@@ -67,7 +67,6 @@ export default function MainStage(props) {
     abi,
     injectedProvider.getSigner()
   );
-
   useEffect(() => {
     async function a() {
       const ata = await loadStageData(nftContract, data.stage.value);
@@ -154,6 +153,7 @@ export default function MainStage(props) {
             <EuiFormRow label="Token ID">
               <EuiFieldText
                 name="id"
+                disabled
                 value={data.id}
                 onChange={(e) => {
                   setData({ ...data, [e.target.name]: e.target.value });
