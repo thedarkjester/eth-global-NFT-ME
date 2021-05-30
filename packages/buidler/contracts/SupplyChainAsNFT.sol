@@ -11,6 +11,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
+    event FinalStageCompleted(uint256 token, uint256 stage);
     event StageAdded(uint256 id, string name);
 
     event TokenStageDocumentAdded(
@@ -78,13 +79,13 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     /// @notice Default fallback for non-data related deposits
     /// @dev no funds should be accepted to this contract
     fallback() external payable {
-        revert("no can do");
+        revert("");
     }
 
     /// @notice Default receive for non-data related deposits
     /// @dev no funds should be accepted to this contract
     receive() external payable {
-        revert("no can do");
+        revert("");
     }
 
     event LogSupplierPaid(address receiver, uint256 amount);
@@ -218,34 +219,19 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         address signatory,
         uint256 supplierFee
     ) public payable {
-        require(_stageCount >= stage, "stage does not exist");
-        require(currentTokenMintCount >= token, "token does not exist");
+        require(_stageCount >= stage, "no stage");
+        require(currentTokenMintCount >= token, "no token");
 
-        require(
-            !_tokenStageStates[token][stage].hasStarted,
-            "The stage is already started"
-        );
-        require(
-            !_tokenStageStates[token][stage].isComplete,
-            "The stage is already complete"
-        );
+        require(!_tokenStageStates[token][stage].hasStarted, "Stage started");
+        require(!_tokenStageStates[token][stage].isComplete, "Stage complete");
 
         if (stage == 1) {
-            require(
-                hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-                "Only owners can assign first supplier"
-            );
+            require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not owner");
         }
 
-        require(
-            _chainStageSignatoriesExist[stage][signatory],
-            "signatory is not in the collection of signatories"
-        );
+        require(_chainStageSignatoriesExist[stage][signatory], "not signatory");
 
-        require(
-            _chainStageSuppliersExist[stage][supplier],
-            "supplier is not in the collection of suppliers"
-        );
+        require(_chainStageSuppliersExist[stage][supplier], "not supplier");
 
         allStagesHaveSuppliersAndSignatories();
 
@@ -259,14 +245,14 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
                 require(
                     _tokenStageStates[token][previousStage].supplierFee ==
                         msg.value,
-                    "The fee for the previous stage was not paid"
+                    "not paid"
                 );
 
                 completeStage(token, previousStage);
             } else {
                 require(
                     _tokenStageStates[token][previousStage].isComplete,
-                    "The previous stage is not complete"
+                    "not complete"
                 );
             }
         }
@@ -281,38 +267,31 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     function allStagesHaveSuppliersAndSignatories() private view {
         for (uint256 i = 1; i <= _stageCount; i++) {
-            require(
-                _chainStageSuppliers[i].length > 0,
-                "Not all stages have suppliers"
-            );
+            require(_chainStageSuppliers[i].length > 0, "missing suppliers");
             require(
                 _chainStageSignatories[i].length > 0,
-                "Not all stages have signatories"
+                "missing signatories"
             );
         }
     }
 
     function completeFinalStage(uint256 token, uint256 stage) public payable {
-        require(_stageCount == stage, "This isn't the final stage");
-        require(currentTokenMintCount >= token, "token does not exist");
-        require(
-            _tokenStageStates[token][stage].hasStarted,
-            "The stage has not started"
-        );
-        require(
-            !_tokenStageStates[token][stage].isComplete,
-            "The stage is already complete"
-        );
+        require(_stageCount == stage, "not final");
+        require(currentTokenMintCount >= token, "no token");
+        require(_tokenStageStates[token][stage].hasStarted, "not started");
+        require(!_tokenStageStates[token][stage].isComplete, "is complete");
         require(
             _chainStageSignatoriesExist[stage][_msgSender()],
-            "signatory is not in the collection of signatories"
+            "incomplete signatories"
         );
         require(
             _tokenStageStates[token][stage].supplierFee == msg.value,
-            "The fee for the final stage was not paid"
+            "not paid"
         );
 
         completeStage(token, stage);
+
+        emit FinalStageCompleted(token, stage);
     }
 
     function completeStage(uint256 token, uint256 stage) private {
@@ -348,12 +327,9 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function addStageSupplier(uint256 stage, address addr) public {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "SupplyChainAsNFT: must have default admin role to addStageSupplier"
-        );
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
 
-        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+        require(stage > 0 && stage <= _stageCount, "Out of bounds");
 
         _chainStageSuppliers[stage].push(addr);
         _chainStageSuppliersExist[stage][addr] = true;
@@ -366,21 +342,15 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         view
         returns (address[] memory stages)
     {
-        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+        require(stage > 0 && stage <= _stageCount, "Out of bounds");
 
         return _chainStageSuppliers[stage];
     }
 
     function addStage(string memory name) public {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "SupplyChainAsNFT: must have default admin role to addStage"
-        );
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
 
-        require(
-            currentTokenMintCount == 0,
-            "Tokens have been minted, stages cannot be added"
-        );
+        require(currentTokenMintCount == 0, "tokens minted");
 
         _chainStages[_stageCount].id = _stageCount + 1;
         _chainStages[_stageCount].name = name;
@@ -389,12 +359,9 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function addStageSignatory(uint256 stage, address addr) public {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "SupplyChainAsNFT: must have default admin role to addStageSignatory"
-        );
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
 
-        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+        require(stage > 0 && stage <= _stageCount, "Out of bounds");
 
         _chainStageSignatories[stage].push(addr);
         _chainStageSignatoriesExist[stage][addr] = true;
@@ -413,7 +380,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         view
         returns (string[] memory documents)
     {
-        require(stage > 0 && stage <= _stageCount, "Out of stage bounds");
+        require(stage > 0 && stage <= _stageCount, "Out of bounds");
 
         return _chainStageDocuments[token][stage];
     }
@@ -423,27 +390,18 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         uint256 stage,
         string memory docHash
     ) public {
-        require(_stageCount >= stage, "stage does not exist");
+        require(_stageCount >= stage, "no stage");
 
-        require(
-            _tokenStageStates[token][stage].hasStarted,
-            "The stage has not started"
-        );
+        require(_tokenStageStates[token][stage].hasStarted, "not started");
 
-        require(
-            !_tokenStageStates[token][stage].isComplete,
-            "The stage is completed"
-        );
+        require(!_tokenStageStates[token][stage].isComplete, "stage completed");
 
         require(
             !_chainStageDocumentsExist[token][stage][docHash],
-            "The document already exists for token on stage"
+            "document exists"
         );
 
-        require(
-            _chainStageSuppliersExist[stage][_msgSender()],
-            "You must be a supplier of the stage"
-        );
+        require(_chainStageSuppliersExist[stage][_msgSender()], "not supplier");
 
         _chainStageDocuments[token][stage].push(docHash);
         _chainStageDocumentsExist[token][stage][docHash] = true;
@@ -452,15 +410,9 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function setTokenLimit(uint256 tokenLimit) public {
-        require(tokenLimit > 0, "You can't set the number less than one");
-        require(
-            tokenLimitSet == false,
-            "You can't set the limit more than once"
-        );
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "SupplyChainAsNFT: must have default admin role to set tokenLimit"
-        );
+        require(tokenLimit > 0, "too low");
+        require(tokenLimitSet == false, "limit set");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
 
         _tokenLimit = tokenLimit;
         tokenLimitSet = true;
@@ -479,7 +431,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             if (_tokenStageStates[token][1].hasStarted) {
                 require(
                     _tokenStageStates[token][_stageCount].isComplete,
-                    "not all stages are complete"
+                    "incomplete"
                 );
                 super._beforeTokenTransfer(from, to, token);
             }
