@@ -12,6 +12,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
     event FinalStageCompleted(uint256 token, uint256 stage);
+    event FinalStageReady(uint256 token, uint256 stage);
     event StageAdded(uint256 id, string name);
 
     event TokenStageDocumentAdded(
@@ -299,17 +300,23 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         _tokenStageStates[token][stage].isComplete = true;
 
-        emit SupplierPaid(
-            _tokenStageStates[token][stage].supplier,
-            token,
-            stage,
-            msg.value
-        );
+        if (_tokenStageStates[token][stage].supplierFee > 0) {
+            emit SupplierPaid(
+                _tokenStageStates[token][stage].supplier,
+                token,
+                stage,
+                msg.value
+            );
+        }
 
         OwedBalances[_tokenStageStates[token][stage].supplier] = OwedBalances[
             _tokenStageStates[token][stage].supplier
         ]
             .add(msg.value);
+
+        if (stage == _stageCount - 1) {
+            emit FinalStageReady(token, _stageCount);
+        }
     }
 
     function getStages() public view returns (string[] memory stages) {
