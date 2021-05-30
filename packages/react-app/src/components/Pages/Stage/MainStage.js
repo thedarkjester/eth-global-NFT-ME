@@ -54,7 +54,7 @@ export default function MainStage(props) {
 
   const [data, setData] = useState({
     id: id,
-    stage: { value: 1, text: 1 },
+    stage: { value: -1 },
     supplier: "",
     signer: "",
     fee: "",
@@ -69,6 +69,9 @@ export default function MainStage(props) {
   );
   useEffect(() => {
     async function a() {
+      if (data.stage.value === -1) {
+        return;
+      }
       const ata = await loadStageData(nftContract, data.stage.value);
       setStageSigData(ata?.stageSignatories);
       setStageSuppliersData(ata?.stageSuppliers);
@@ -164,13 +167,16 @@ export default function MainStage(props) {
               <EuiSelect
                 name="stage"
                 value={data.stage.value}
-                options={stagesFull.map((stage) => {
-                  const o = {
-                    value: stage.id,
-                    text: stage.name,
-                  };
-                  return o;
-                })}
+                options={stagesFull.reduce(
+                  (acc, stage) => {
+                    acc.push({
+                      value: stage.id,
+                      text: stage.name,
+                    });
+                    return acc;
+                  },
+                  [{ value: -1, text: "Select Stage" }]
+                )}
                 onChange={(e) => {
                   setData({
                     ...data,
@@ -182,13 +188,14 @@ export default function MainStage(props) {
             <EuiFormRow label="Supplier">
               <EuiSelect
                 name="supplier"
+                disabled={data.stage.value === -1}
                 options={stageSupplData.reduce(
                   (acc, i) => {
                     const o = { value: i.addr, text: i.addr };
                     acc.push(o);
                     return acc;
                   },
-                  [{ value: "Select", text: "Select Supplier" }]
+                  [{ value: null, text: "Select Supplier" }]
                 )}
                 value={data.supplier}
                 onChange={(e) => {
@@ -199,13 +206,14 @@ export default function MainStage(props) {
             <EuiFormRow label="Signer">
               <EuiSelect
                 name="signer"
+                disabled={data.stage.value === -1}
                 options={stageSigData.reduce(
                   (acc, i) => {
                     const o = { value: i.addr, text: i.addr };
                     acc.push(o);
                     return acc;
                   },
-                  [{ value: "Select", text: "Select Signer" }]
+                  [{ value: null, text: "Select Signer" }]
                 )}
                 value={data.signer}
                 onChange={(e) => {
@@ -216,6 +224,7 @@ export default function MainStage(props) {
             <EuiFormRow label="Fee">
               <EuiFieldNumber
                 name="fee"
+                disabled={data.stage.value === -1}
                 value={data.fee}
                 onChange={(e) => {
                   setData({ ...data, [e.target.name]: e.target.value });
@@ -225,6 +234,9 @@ export default function MainStage(props) {
             <EuiFormRow>
               <EuiButton
                 color="primary"
+                disabled={
+                  data.stage.value === -1 || !data.supplier || !data.signer
+                }
                 iconType="plus"
                 onClick={() => {
                   tx(
