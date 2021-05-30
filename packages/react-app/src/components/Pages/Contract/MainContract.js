@@ -40,6 +40,7 @@ export default function MainContract(props) {
 
   const [stageList, setStageList] = useState([]);
   const [sigList, setSigList] = useState([]);
+  const [tokens, setTokens] = useState("");
 
   const onStageDragEnd = ({ source, destination }) => {
     if (source && destination) {
@@ -78,6 +79,13 @@ export default function MainContract(props) {
     injectedProvider,
     1
   );
+  useEffect(() => {
+    async function c() {
+      return await nftContract.totalSupply();
+    }
+    const result = c();
+    console.log(result);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -122,23 +130,22 @@ export default function MainContract(props) {
   if (!injectedProvider) return "loading";
 
   const actions = [
-    {
-      render: () => {
-        const stageId =
-          Number(
-            selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
-          ) + 1;
-
-        return (
-          <AppLink
-            title="View"
-            to={`/stage/${stageId}?contract=${address}&stages=${encodeURIComponent(
-              JSON.stringify(stages)
-            )}`}
-          />
-        );
-      },
-    },
+    // {
+    //   render: () => {
+    //     const stageId =
+    //       Number(
+    //         selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
+    //       ) + 1;
+    //     return (
+    //       <AppLink
+    //         title="View"
+    //         to={`/stage/${stageId}?contract=${address}&stages=${encodeURIComponent(
+    //           JSON.stringify(stages)
+    //         )}`}
+    //       />
+    //     );
+    //   },
+    // },
   ];
   const columns = [
     {
@@ -216,6 +223,7 @@ export default function MainContract(props) {
           </EuiFlexItem>
 
           <EuiFlexItem>
+            <EuiText>Stages</EuiText>
             <EuiBasicTable
               columns={columns}
               items={stages}
