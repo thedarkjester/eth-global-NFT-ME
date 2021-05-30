@@ -172,6 +172,7 @@ export default function MainStage(props) {
                     acc.push({
                       value: stage.id,
                       text: stage.name,
+                      disabled: stage.started,
                     });
                     return acc;
                   },
