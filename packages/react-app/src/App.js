@@ -80,6 +80,8 @@ function App() {
           <Route path="/supply-chain">
             {injectedProvider && writeContracts && (
               <MainSupplyChain
+                injectedProvider={injectedProvider}
+                contractName="SupplyChainFactory"
                 readContracts={readContracts}
                 writeContracts={writeContracts}
                 // newSupplyChainEvents={newSupplyChainEvents}

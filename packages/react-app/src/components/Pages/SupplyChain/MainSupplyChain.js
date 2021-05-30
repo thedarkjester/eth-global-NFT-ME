@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import useEventListener from "../../../hooks/EventListener";
 import {
   EuiButton,
   EuiFlexGroup,
@@ -9,31 +10,68 @@ import {
   EuiFieldNumber,
   EuiText,
   EuiBasicTable,
+  EuiLoadingSpinner,
 } from "@elastic/eui";
 
 import Link from "../../Link";
 import Container from "../../Styled/Container";
 
-export default function MainSupplyChain(props) {
-  const { writeContracts, readContracts, tx, userAddress } = props;
-  const [data, setData] = useState({ name: "", symbol: "", tokenLimit: 0 });
-  const [contracts, setContracts] = useState([]);
+// async function getDataFromServer(writeContracts) {
+//   const response = await writeContracts[
+//     "SupplyChainFactory"
+//   ].getSupplyChainList();
+//   const names = response.names;
+//   const address = response.addresses;
+//   const tableFormat = [];
+//   for (let x = 0; x < response[0].length; x++) {
+//     const d = { name: names[x], address: address[x] };
+//     tableFormat.push(d);
+//   }
+//   return tableFormat;
+// }
 
-  useEffect(() => {
-    async function contracts2() {
-      return await writeContracts["SupplyChainFactory"].getSupplyChainList();
-    }
-    contracts2().then((i) => {
-      const names = i.names;
-      const address = i.addresses;
-      const tableFormat = [];
-      for (let x = 0; x < i[0].length; x++) {
-        const d = { name: names[x], address: address[x] };
-        tableFormat.push(d);
-      }
-      setContracts(tableFormat);
-    });
-  }, [writeContracts]);
+function extractDataForTable(data) {
+  if (!data || !data.length) {
+    return [];
+  }
+  return data.map((item) => ({
+    name: item.name,
+    address: item.supplyChainAddress,
+  }));
+}
+
+export default function MainSupplyChain(props) {
+  const {
+    writeContracts,
+    readContracts,
+    tx,
+    injectedProvider,
+    userAddress,
+    contractName,
+  } = props;
+  const [data, setData] = useState({ name: "", symbol: "", tokenLimit: 0 });
+  const [creatingActionInProgress, setCreatingActionInProgress] =
+    useState(false);
+  // const [contracts, setContracts] = useState([]);
+
+  // useEffect(() => {
+  //   async function loadData() {
+  //     const data = await getDataFromServer(writeContracts);
+  //     setContracts(data);
+  //   }
+  //   loadData();
+  // }, [writeContracts]);
+
+  // NOTE: this is a hack to have it autoload events instead of calling the
+  //       the get function. this gives real-time updates without much work.
+  const events = useEventListener(
+    readContracts,
+    contractName,
+    "SupplyChainCreated",
+    injectedProvider,
+    1
+  );
+  const contracts = extractDataForTable(events);
 
   const columns = [
     {
@@ -91,16 +129,20 @@ export default function MainSupplyChain(props) {
               <EuiButton
                 color="primary"
                 iconType="plus"
-                onClick={() => {
-                  tx(
+                disabled={creatingActionInProgress}
+                onClick={async () => {
+                  setCreatingActionInProgress(true);
+                  await tx(
                     writeContracts["SupplyChainFactory"].addSupplyChain(
                       data.name,
                       data.symbol,
                       data.tokenLimit
                     )
                   );
+                  setCreatingActionInProgress(false);
                 }}
               >
+                {creatingActionInProgress ? <EuiLoadingSpinner /> : null}
                 Create new Supply Chain
               </EuiButton>
             </EuiFormRow>
