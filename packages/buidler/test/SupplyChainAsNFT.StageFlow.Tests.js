@@ -194,7 +194,6 @@ describe("SupplyChainAsNFT:StageStarting tests", function () {
 
       it("Fails to transfer token if final stage is not complete", async function () {
         let stageState = await supplyChainAsNFTInstance.getTokenStageState(1, 5);
-        console.log(stageState);
 
         await catchRevert(supplyChainAsNFTInstance.transferFrom(accounts[0], accounts[2], 1));
       });
