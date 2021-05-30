@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { EuiFlexGroup, EuiFlexItem, EuiButton } from "@elastic/eui";
+import {
+  EuiFlexGroup,
+  EuiFlexItem,
+  EuiButton,
+  EuiLoadingSpinner,
+} from "@elastic/eui";
 
 import { Upload, message, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
@@ -48,8 +53,9 @@ async function loadFiles(nftContract, tokenId, stageId) {
     tokenId,
     stageId
   );
-  const filesFromIPFSWork = response.map((hash) => {
-    return getFromIPFS(hash);
+  const filesFromIPFSWork = response.map(async (hash) => {
+    const result = await getFromIPFS(hash);
+    return { data: result, hash };
   });
   return await Promise.all(filesFromIPFSWork);
 }
@@ -66,18 +72,21 @@ export default function StageView(props) {
   const [ipfsHash, setIpfsHash] = useState();
   const [ipfsContents, setIpfsContents] = useState();
   const [files, setFiles] = useState([]);
+  const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
       const filesFromIPFSResult = await loadFiles(
         nftContract,
         props.tokenId,
         props.selectedStage.id
       );
       setFiles(filesFromIPFSResult);
+      setLoading(false);
     }
     load();
-  }, []);
+  }, [props.selectedStage.id]);
 
   const tx = Transactor(props.injectedProvider, props.gasPrice);
   const asyncGetFile = async () => {
@@ -110,57 +119,69 @@ export default function StageView(props) {
   }, []);
 
   return (
-    <>
-      {props.selectedStage.supplierAddr}{" "}
-      <EuiFlexGroup>
+    <EuiFlexGroup>
+      {props.stageIsComplete ? null : (
         <EuiFlexItem>
-          <label for="myfile">Select a file:</label>
-          <input
-            type="file"
-            id="myfile"
-            name="myfile"
-            onChange={handleFileSelection}
-          />
-        </EuiFlexItem>
-        <EuiFlexItem>
-          <EuiButton
-            color="primary"
-            onClick={async () => {
-              setSending(true);
-              const result = await addToIPFS(data);
+          <EuiFlexItem>
+            <label for="myfile">Select a file:</label>
+            <input
+              disabled={!props.stageHasStarted}
+              type="file"
+              id="myfile"
+              name="myfile"
+              onChange={handleFileSelection}
+            />
+          </EuiFlexItem>
+          <EuiFlexItem>
+            <EuiButton
+              color="primary"
+              onClick={async () => {
+                setSending(true);
+                const result = await addToIPFS(data);
 
-              if (result && result.path) {
-                props.tx(
-                  nftContract.addTokenStageDocument(
-                    props.tokenId,
-                    props.selectedStage.id,
-                    result.path
-                  )
-                );
-
-                setTimeout(async () => {
-                  const response = await loadFiles(
-                    nftContract,
-                    props.tokenId,
-                    props.selectedStage.id
+                if (result && result.path) {
+                  props.tx(
+                    nftContract.addTokenStageDocument(
+                      props.tokenId,
+                      props.selectedStage.id,
+                      result.path
+                    )
                   );
-                  setFiles(response);
-                }, 4000);
-              }
-              setSending(false);
-            }}
-          >
-            Upload
-          </EuiButton>
 
-          {/** @TODO RYAN style these nicely */}
-          {files.map((file) => (
-            <p>
-              <img src={file} />
-            </p>
-          ))}
+                  setLoading(true);
+                  setTimeout(async () => {
+                    const response = await loadFiles(
+                      nftContract,
+                      props.tokenId,
+                      props.selectedStage.id
+                    );
+                    setFiles(response);
+                    setLoading(false);
+                  }, 4000);
+                }
+                setSending(false);
+              }}
+            >
+              Upload
+            </EuiButton>
+          </EuiFlexItem>
         </EuiFlexItem>
-      </EuiFlexGroup>
-    </>
+      )}
+      <EuiFlexItem>
+        {/** @TODO RYAN style these nicely */}
+        {isLoading ? (
+          <>
+            <EuiLoadingSpinner size="xl" /> Loading...
+          </>
+        ) : (
+          files.map((file) => (
+            <p>
+              <p>{file.hash}</p>
+              <img src={file.data} />
+            </p>
+          ))
+        )}
+      </EuiFlexItem>
+    </EuiFlexGroup>
   );
 }

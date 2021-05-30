@@ -313,19 +313,18 @@ export default function MainStage(props) {
         </EuiFlexItem>
       </EuiFlexGroup>
       {selectedStage && (
-        <>
+        <div style={{ paddingTop: "20px" }}>
           <h3>{selectedStage.name} Stage</h3>
           <StageView
             tx={tx}
             tokenId={id}
             contractAddress={contractAddress}
             injectedProvider={injectedProvider}
-            selectedStage={{
-              ...selectedStage,
-              supplierAddr: statusData[selectedStage.id - 1]?.supplier,
-            }}
+            selectedStage={selectedStage}
+            stageIsComplete={statusData[selectedStage.id - 1]?.isComplete}
+            stageHasStarted={statusData[selectedStage.id - 1]?.hasStarted}
           />
-        </>
+        </div>
       )}
     </Container>
   );
