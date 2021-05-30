@@ -23,7 +23,7 @@ import { ethers } from "ethers";
 //import SipplyChainAsNFT ABI
 import { abi } from "../../../constants";
 import Container from "../../../components/Styled/Container";
-import { AppLink } from "../../../components/Link";
+import AppLink from "../../../components/Link";
 
 export default function MainContract(props) {
   const {
@@ -123,13 +123,19 @@ export default function MainContract(props) {
 
   const actions = [
     {
-      render: (item) => {
+      render: () => {
         const stageId =
           Number(
             selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
           ) + 1;
+
         return (
-          <AppLink to={`/stage/${stageId}?contract=${address}&`}>Start</AppLink>
+          <AppLink
+            title="View"
+            to={`/stage/${stageId}?contract=${address}&stages=${encodeURIComponent(
+              JSON.stringify(stages)
+            )}`}
+          />
         );
       },
     },
@@ -184,15 +190,27 @@ export default function MainContract(props) {
               </EuiFormRow>
 
               <EuiFormRow>
-                <EuiButton
-                  color="primary"
-                  iconType="plus"
-                  onClick={async () => {
-                    await tx(nftContract.functions.addStage(data.name));
-                  }}
-                >
-                  Add New Stage
-                </EuiButton>
+                <>
+                  <EuiButton
+                    color="primary"
+                    iconType="plus"
+                    onClick={async () => {
+                      await tx(nftContract.functions.addStage(data.name));
+                    }}
+                  >
+                    Add New Stage
+                  </EuiButton>
+                  <EuiButton
+                    color="secondary"
+                    fill
+                    style={{ marginLeft: 30 }}
+                    onClick={async () => {
+                      await tx(nftContract.functions.mint(userAddress));
+                    }}
+                  >
+                    Mint
+                  </EuiButton>
+                </>
               </EuiFormRow>
             </EuiForm>
           </EuiFlexItem>

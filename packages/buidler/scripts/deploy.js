@@ -12,6 +12,10 @@ async function main() {
   //const smartContractWallet = await deploy("SmartContractWallet",[exampleToken.address,examplePriceOracle.address])
   await supplyChainFactory.grantRole(
     "0x00",
+    "0xFA6443D6F6Cb53e195D41038D4c42D5c0dE7988B"
+  );
+  await supplyChainFactory.grantRole(
+    "0x00",
     "0xeeB25D90d4aA5c9e3aC6BB00ecE55C23076Ea3b2"
   );
   // await supplyChainFactory.addSupplyChain("one", "ONE", 1000);

@@ -76,6 +76,25 @@ export const abi = [
       {
         indexed: false,
         internalType: "address",
+        name: "receiver",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "LogSupplierPaid",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
         name: "account",
         type: "address",
       },
@@ -131,6 +150,25 @@ export const abi = [
       },
     ],
     name: "RoleRevoked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "id",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "StageAdded",
     type: "event",
   },
   {
@@ -238,6 +276,31 @@ export const abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "token",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "stage",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "documentHash",
+        type: "string",
+      },
+    ],
+    name: "TokenStageDocumentAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "address",
         name: "from",
@@ -275,24 +338,6 @@ export const abi = [
   {
     stateMutability: "payable",
     type: "fallback",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "token",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "stage",
-        type: "uint256",
-      },
-    ],
-    name: "CompleteFinalStage",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
   },
   {
     inputs: [],
@@ -355,126 +400,6 @@ export const abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "_chainStageSignatories",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "_chainStageSignatoriesExist",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "_chainStageSuppliers",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "_chainStageSuppliersExist",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "_chainStages",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "id",
-        type: "uint256",
-      },
-      {
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "string",
         name: "name",
         type: "string",
@@ -517,6 +442,29 @@ export const abi = [
       },
     ],
     name: "addStageSupplier",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "token",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "stage",
+        type: "uint256",
+      },
+      {
+        internalType: "string",
+        name: "docHash",
+        type: "string",
+      },
+    ],
+    name: "addTokenStageDocument",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -582,6 +530,24 @@ export const abi = [
     name: "burn",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "token",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "stage",
+        type: "uint256",
+      },
+    ],
+    name: "completeFinalStage",
+    outputs: [],
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -666,6 +632,36 @@ export const abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getSignatoryView",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "token",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "stage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "supplierFee",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct SupplyChainAsNFT.AddressStageView[]",
+        name: "states",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -710,6 +706,60 @@ export const abi = [
       {
         internalType: "string[]",
         name: "stages",
+        type: "string[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getSupplierView",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "token",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "stage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "supplierFee",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct SupplyChainAsNFT.AddressStageView[]",
+        name: "states",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "token",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "stage",
+        type: "uint256",
+      },
+    ],
+    name: "getTokenStageDocuments",
+    outputs: [
+      {
+        internalType: "string[]",
+        name: "documents",
         type: "string[]",
       },
     ],
@@ -1182,6 +1232,13 @@ export const abi = [
   {
     inputs: [],
     name: "unpause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdraw",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
