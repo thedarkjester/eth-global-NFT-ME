@@ -77,16 +77,16 @@ export default function MainStage(props) {
     a();
   }, [data.stage.value]);
 
-  useEffect(() => {
-    async function getD() {
-      const sigView = await nftContract
-        .getSignatoryView()
-        .then((i) => console.log(i));
-      const supView = await nftContract.getSupplierView();
-      //   console.log(supView, sigView);
-    }
-    getD();
-  }, []);
+  // useEffect(() => {
+  //   async function getD() {
+  //     const sigView = await nftContract
+  //       .getSignatoryView()
+  //       .then((i) => console.log(i));
+  //     const supView = await nftContract.getSupplierView();
+  //     //   console.log(supView, sigView);
+  //   }
+  //   getD();
+  // }, []);
 
   useEffect(() => {
     async function t() {
@@ -95,10 +95,9 @@ export default function MainStage(props) {
       });
       const v = await Promise.all(promises);
       setStatusData(v);
-      return v;
     }
     t();
-  });
+  }, []);
 
   function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
@@ -110,17 +109,17 @@ export default function MainStage(props) {
       }
     }
   }
-  console.log(JSON.parse(stages));
-  console.log("ADSFDSFADSFASD F", statusData);
+
   const stagesFull = JSON.parse(stages).map((item, index) => {
     const o = {
       id: item.id,
-      name: item.name,
+      name: item.name.slice(0, item.name.indexOf("_")),
       started: statusData[index]?.hasStarted,
       completed: statusData[index]?.isComplete,
     };
     return o;
   });
+
   let columns = [
     {
       field: "name",
@@ -142,7 +141,6 @@ export default function MainStage(props) {
       //   render: (item) => <span>{item}</span>,
     },
   ];
-  console.log(stagesFull);
   return (
     <Container>
       {/* {id} {contract} {stages} */}
@@ -165,15 +163,19 @@ export default function MainStage(props) {
             <EuiFormRow label="Stage">
               <EuiSelect
                 name="stage"
-                value={data.stage}
-                options={JSON.parse(stages).map((stage) => {
-                  console.log(stage);
-                  const o = { value: stage.id, text: stage.name };
-                  console.log(o);
+                value={data.stage.value}
+                options={stagesFull.map((stage) => {
+                  const o = {
+                    value: stage.id,
+                    text: stage.name,
+                  };
                   return o;
                 })}
                 onChange={(e) => {
-                  setData({ ...data, [e.target.name]: e.target.value });
+                  setData({
+                    ...data,
+                    stage: { value: Number(e.target.value) },
+                  });
                 }}
               />
             </EuiFormRow>
@@ -203,7 +205,7 @@ export default function MainStage(props) {
                     acc.push(o);
                     return acc;
                   },
-                  [{ value: "Select", text: "Select Supplier" }]
+                  [{ value: "Select", text: "Select Signer" }]
                 )}
                 value={data.signer}
                 onChange={(e) => {
