@@ -105,7 +105,7 @@ function App() {
               />
             )}
           </Route>
-          <Route path="/stage/:id">
+          <Route path="/token/:id">
             {injectedProvider && (
               <MainStage
                 readContracts={readContracts}

@@ -41,6 +41,16 @@ async function loadData(nftContract) {
   return tableFormat;
 }
 
+async function loadSupplyData(nftContract) {
+  const response = await nftContract.totalSupply();
+  if (!response) {
+    return "";
+  }
+  const f = ethers.utils.bigNumberify(response._hex).toNumber();
+
+  return f;
+}
+
 async function loadStageData(nftContract, selectedStage) {
   const stageSigsData = await nftContract.getStageSignatories(selectedStage);
   const stageSuppliersData = await nftContract.getStageSuppliers(selectedStage);
@@ -66,6 +76,7 @@ export default function MainContract(props) {
     injectedProvider,
     writeContracts,
     useEventListener,
+    readContracts,
   } = props;
   const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
@@ -73,10 +84,9 @@ export default function MainContract(props) {
   const [stageSigData, setStageSigData] = useState([]);
   const [selectedStage, setSelectedStage] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [tokenList, setTokenList] = useState([]);
   const [stageList, setStageList] = useState([]);
   const [sigList, setSigList] = useState([]);
-  const [tokens, setTokens] = useState("");
 
   const onStageDragEnd = ({ source, destination }) => {
     if (source && destination) {
@@ -108,19 +118,14 @@ export default function MainContract(props) {
     abi,
     injectedProvider.getSigner()
   );
-  const newStageEvents = useEventListener(
-    nftContract,
-    "SupplyChainAsNFT",
-    "StageAdded",
-    injectedProvider,
-    1
-  );
+
   useEffect(() => {
-    async function c() {
-      return await nftContract.totalSupply();
+    async function getMe() {
+      const r = await loadSupplyData(nftContract);
+      console.log("<<<< ", r);
+      setTokenList(r);
     }
-    const result = c();
-    console.log(result);
+    getMe();
   }, []);
 
   useEffect(() => {
@@ -289,22 +294,58 @@ export default function MainContract(props) {
               </EuiFormRow>
 
               <EuiFormRow>
-                <EuiButton
-                  color="primary"
-                  iconType="plus"
-                  onClick={async () => {
-                    await tx(nftContract.functions.addStage(data.name));
+                <>
+                  <EuiButton
+                    color="primary"
+                    iconType="plus"
+                    onClick={async () => {
+                      await tx(nftContract.functions.addStage(data.name));
 
-                    setTimeout(async () => {
-                      const reloadedData = await loadData(nftContract);
-                      setStages(reloadedData);
-                    }, 2000);
-                  }}
-                >
-                  Add New Stage
-                </EuiButton>
+                      setTimeout(async () => {
+                        const reloadedData = await loadData(nftContract);
+                        setStages(reloadedData);
+                      }, 2000);
+                    }}
+                  >
+                    Add New Stage
+                  </EuiButton>
+                  <EuiButton
+                    color="secondary"
+                    fill
+                    style={{ marginLeft: 30 }}
+                    onClick={async () => {
+                      await tx(nftContract.mint(userAddress));
+                    }}
+                  >
+                    Mint
+                  </EuiButton>
+                </>
               </EuiFormRow>
             </EuiForm>
+            <EuiSpacer />
+            <EuiSpacer />
+
+            <span className="poop">
+              {new Array(tokenList).fill("undefined").map((i, idx) => {
+                return (
+                  <ul key={idx}>
+                    <li>
+                      <AppLink
+                        to={`/token/${
+                          idx + 1
+                        }?contract=${address}&stages=${encodeURIComponent(
+                          JSON.stringify(stages)
+                        )}`}
+                        title={`Token: ${idx + 1}`}
+                      >
+                        {idx + 1}
+                      </AppLink>
+                      <EuiSpacer />
+                    </li>
+                  </ul>
+                );
+              })}
+            </span>
           </EuiFlexItem>
 
           <EuiFlexItem>

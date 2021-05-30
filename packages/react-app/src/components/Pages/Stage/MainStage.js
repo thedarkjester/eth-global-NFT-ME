@@ -8,6 +8,8 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiFieldText,
+  EuiFieldNumber,
+  EuiSelect,
   EuiSpacer,
   EuiBasicTable,
   EuiLink,
@@ -25,24 +27,56 @@ import { abi } from "../../../constants";
 
 import Container from "../../../components/Styled/Container";
 
+async function loadStageData(nftContract, selectedStage) {
+  const stageSigsData = await nftContract.getStageSignatories(selectedStage);
+  const stageSuppliersData = await nftContract.getStageSuppliers(selectedStage);
+  if (
+    !stageSigsData ||
+    !stageSigsData.length ||
+    !stageSuppliersData ||
+    !stageSuppliersData.length
+  ) {
+    return { stageSignatories: [], stageSuppliers: [] };
+  }
+
+  return {
+    stageSignatories: stageSigsData.map((item) => ({ addr: item })),
+    stageSuppliers: stageSuppliersData.map((item) => ({ addr: item })),
+  };
+}
+
 export default function MainStage(props) {
+  const [stageSupplData, setStageSuppliersData] = useState([]);
+  const [stageSigData, setStageSigData] = useState([]);
+
   const { id, contract } = useParams();
-  const {
-    userAddress,
-    tx,
-    injectedProvider,
-    writeContracts,
-    useEventListener,
-  } = props;
-  const [sView, setSView] = useState([]);
+  const { userAddress, tx, injectedProvider } = props;
+
+  const [data, setData] = useState({
+    id: id,
+    stage: { value: 1, text: 1 },
+    supplier: "",
+    signer: "",
+    fee: "",
+  });
   const contractAddress = getQueryVariable("contract");
   const stages = getQueryVariable("stages");
+
   const nftContract = new ethers.Contract(
     contractAddress,
     abi,
     injectedProvider.getSigner()
   );
-  console.log(nftContract);
+
+  useEffect(() => {
+    async function a() {
+      const ata = await loadStageData(nftContract, data.stage.value);
+      setStageSigData(ata?.stageSignatories);
+      setStageSuppliersData(ata?.stageSuppliers);
+    }
+    a();
+  }, [data.stage.value]);
+
   useEffect(() => {
     async function getD() {
       const sigView = await nftContract
@@ -53,6 +87,7 @@ export default function MainStage(props) {
     }
     getD();
   }, []);
+
   function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
@@ -69,7 +104,99 @@ export default function MainStage(props) {
       {id} {contract} {stages}
       {contractAddress}
       <EuiFlexGroup>
-        <EuiFlexItem></EuiFlexItem>
+        <EuiFlexItem>
+          <EuiForm component="form">
+            <EuiFormRow>
+              <EuiText>Start</EuiText>
+            </EuiFormRow>
+            <EuiFormRow label="Token ID">
+              <EuiFieldText
+                name="id"
+                value={data.id}
+                onChange={(e) => {
+                  setData({ ...data, [e.target.name]: e.target.value });
+                }}
+              />
+            </EuiFormRow>
+            <EuiFormRow label="Stage">
+              <EuiSelect
+                name="stage"
+                value={data.stage}
+                options={JSON.parse(stages).map((stage) => {
+                  console.log(stage);
+                  const o = { value: stage.id, text: stage.name };
+                  console.log(o);
+                  return o;
+                })}
+                onChange={(e) => {
+                  setData({ ...data, [e.target.name]: e.target.value });
+                }}
+              />
+            </EuiFormRow>
+            <EuiFormRow label="Supplier">
+              <EuiSelect
+                name="supplier"
+                options={stageSupplData.reduce(
+                  (acc, i) => {
+                    const o = { value: i.addr, text: i.addr };
+                    acc.push(o);
+                    return acc;
+                  },
+                  [{ value: "Select", text: "Select Supplier" }]
+                )}
+                value={data.supplier}
+                onChange={(e) => {
+                  setData({ ...data, [e.target.name]: e.target.value });
+                }}
+              />
+            </EuiFormRow>
+            <EuiFormRow label="Signer">
+              <EuiSelect
+                name="signer"
+                options={stageSigData.reduce(
+                  (acc, i) => {
+                    const o = { value: i.addr, text: i.addr };
+                    acc.push(o);
+                    return acc;
+                  },
+                  [{ value: "Select", text: "Select Supplier" }]
+                )}
+                value={data.signer}
+                onChange={(e) => {
+                  setData({ ...data, [e.target.name]: e.target.value });
+                }}
+              />
+            </EuiFormRow>
+            <EuiFormRow label="Fee">
+              <EuiFieldNumber
+                name="fee"
+                value={data.fee}
+                onChange={(e) => {
+                  setData({ ...data, [e.target.name]: e.target.value });
+                }}
+              />
+            </EuiFormRow>
+            <EuiFormRow>
+              <EuiButton
+                color="primary"
+                iconType="plus"
+                onClick={() => {
+                  tx(
+                    nftContract.startStage(
+                      data.id,
+                      data.stage.value,
+                      data.supplier,
+                      data.signer,
+                      data.fee
+                    )
+                  );
+                }}
+              >
+                Start
+              </EuiButton>
+            </EuiFormRow>
+          </EuiForm>
+        </EuiFlexItem>
       </EuiFlexGroup>
     </Container>
   );
