@@ -20,10 +20,44 @@ import {
   EuiHorizontalRule,
 } from "@elastic/eui";
 import { ethers } from "ethers";
+import Blockies from "react-blockies";
 //import SipplyChainAsNFT ABI
 import { abi } from "../../../constants";
 import Container from "../../../components/Styled/Container";
 import AppLink from "../../../components/Link";
+
+async function loadData(nftContract) {
+  const response = await nftContract.getStages();
+  if (!response) {
+    return [];
+  }
+
+  const tableFormat = [];
+  for (let x = 0; x < response.length; x++) {
+    const d = { id: x + 1, name: response[x] + "_" + x };
+    tableFormat.push(d);
+  }
+
+  return tableFormat;
+}
+
+async function loadStageData(nftContract, selectedStage) {
+  const stageSigsData = await nftContract.getStageSignatories(selectedStage);
+  const stageSuppliersData = await nftContract.getStageSuppliers(selectedStage);
+  if (
+    !stageSigsData ||
+    !stageSigsData.length ||
+    !stageSuppliersData ||
+    !stageSuppliersData.length
+  ) {
+    return { stageSignatories: [], stageSuppliers: [] };
+  }
+
+  return {
+    stageSignatories: stageSigsData.map((item) => ({ addr: item })),
+    stageSuppliers: stageSuppliersData.map((item) => ({ addr: item })),
+  };
+}
 
 export default function MainContract(props) {
   const {
@@ -35,6 +69,8 @@ export default function MainContract(props) {
   } = props;
   const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
+  const [stageSupplData, setStageSuppliersData] = useState([]);
+  const [stageSigData, setStageSigData] = useState([]);
   const [selectedStage, setSelectedStage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -90,18 +126,25 @@ export default function MainContract(props) {
   useEffect(() => {
     setLoading(true);
     async function getStages() {
-      return await nftContract.getStages();
+      const data = await loadData(nftContract);
+      setStages(data);
     }
 
-    getStages().then((i) => {
-      const tableFormat = [];
-      for (let x = 0; x < i.length; x++) {
-        const d = { id: x + 1, name: i[x] + "_" + x };
-        tableFormat.push(d);
-      }
-      setStages(tableFormat);
-    });
+    getStages();
   }, [injectedProvider]);
+
+  useEffect(() => {
+    async function getStageData() {
+      const stageId =
+        Number(
+          selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
+        ) + 1;
+      const data = await loadStageData(nftContract, stageId);
+      setStageSigData(data?.stageSignatories);
+      setStageSuppliersData(data?.stageSuppliers);
+    }
+    getStageData();
+  }, [selectedStage]);
 
   async function uploadData() {
     // loop over each stage, then loop over each signatory
@@ -124,6 +167,13 @@ export default function MainContract(props) {
       );
       console.log("added signatory " + result);
     }
+
+    // hacking the reload since it might take a second for hardhat to commit
+    setTimeout(async () => {
+      const data = await loadStageData(nftContract, stageId);
+      setStageSigData(data?.stageSignatories);
+      setStageSuppliersData(data?.stageSuppliers);
+    }, 2000);
     setLoading(false);
   }
 
@@ -175,6 +225,48 @@ export default function MainContract(props) {
     { name: "View", actions },
   ];
 
+  const stageSigColumns = [
+    {
+      field: "addr",
+      name: "Blockie",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return <Blockies seed={item?.toLowerCase()} size={16} scale={4} />;
+      },
+    },
+    {
+      field: "addr",
+      name: "Address",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return item;
+      },
+    },
+  ];
+
+  const stageSupplColumns = [
+    {
+      field: "addr",
+      name: "Blockie",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return <Blockies seed={item?.toLowerCase()} size={16} scale={4} />;
+      },
+    },
+    {
+      field: "addr",
+      name: "Address",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return item;
+      },
+    },
+  ];
+
   return (
     <div>
       <EuiSpacer />
@@ -197,27 +289,20 @@ export default function MainContract(props) {
               </EuiFormRow>
 
               <EuiFormRow>
-                <>
-                  <EuiButton
-                    color="primary"
-                    iconType="plus"
-                    onClick={async () => {
-                      await tx(nftContract.functions.addStage(data.name));
-                    }}
-                  >
-                    Add New Stage
-                  </EuiButton>
-                  <EuiButton
-                    color="secondary"
-                    fill
-                    style={{ marginLeft: 30 }}
-                    onClick={async () => {
-                      await tx(nftContract.functions.mint(userAddress));
-                    }}
-                  >
-                    Mint
-                  </EuiButton>
-                </>
+                <EuiButton
+                  color="primary"
+                  iconType="plus"
+                  onClick={async () => {
+                    await tx(nftContract.functions.addStage(data.name));
+
+                    setTimeout(async () => {
+                      const reloadedData = await loadData(nftContract);
+                      setStages(reloadedData);
+                    }, 2000);
+                  }}
+                >
+                  Add New Stage
+                </EuiButton>
               </EuiFormRow>
             </EuiForm>
           </EuiFlexItem>
@@ -235,6 +320,23 @@ export default function MainContract(props) {
         <EuiSpacer />
         <EuiSpacer />
         <EuiSpacer />
+
+        {selectedStage && (
+          <>
+            Signatories:
+            <EuiBasicTable
+              columns={stageSigColumns}
+              items={stageSigData}
+              style={{ marginLeft: 40, marginTop: 30, width: "100%" }}
+            />
+            Suppliers:
+            <EuiBasicTable
+              columns={stageSupplColumns}
+              items={stageSupplData}
+              style={{ marginLeft: 40, marginTop: 30, width: "100%" }}
+            />
+          </>
+        )}
 
         {selectedStage && (
           <EuiText>
