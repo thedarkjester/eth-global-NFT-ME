@@ -128,6 +128,10 @@ export default function MainStage(props) {
     return o;
   });
 
+  const areAllStagesComplete = stagesFull.reduce(
+    (result, stage) => result && stage.completed
+  );
+
   let columns = [
     {
       field: "name",
@@ -159,123 +163,125 @@ export default function MainStage(props) {
       {/* {id} {contract} {stages} */}
       {contractAddress}
       <EuiFlexGroup>
-        <EuiFlexItem>
-          <EuiForm component="form">
-            <EuiFormRow>
-              <EuiText>Start</EuiText>
-            </EuiFormRow>
-            <EuiFormRow label="Token ID">
-              <EuiFieldText
-                name="id"
-                disabled
-                value={data.id}
-                onChange={(e) => {
-                  setData({ ...data, [e.target.name]: e.target.value });
-                }}
-              />
-            </EuiFormRow>
-            <EuiFormRow label="Stage">
-              <EuiSelect
-                name="stage"
-                value={data.stage.value}
-                options={stagesFull.reduce(
-                  (acc, stage) => {
-                    acc.push({
-                      value: stage.id,
-                      text: stage.name,
-                      disabled: stage.started,
+        {areAllStagesComplete ? null : (
+          <EuiFlexItem>
+            <EuiForm component="form">
+              <EuiFormRow>
+                <EuiText>Start</EuiText>
+              </EuiFormRow>
+              <EuiFormRow label="Token ID">
+                <EuiFieldText
+                  name="id"
+                  disabled
+                  value={data.id}
+                  onChange={(e) => {
+                    setData({ ...data, [e.target.name]: e.target.value });
+                  }}
+                />
+              </EuiFormRow>
+              <EuiFormRow label="Stage">
+                <EuiSelect
+                  name="stage"
+                  value={data.stage.value}
+                  options={stagesFull.reduce(
+                    (acc, stage) => {
+                      acc.push({
+                        value: stage.id,
+                        text: stage.name,
+                        disabled: stage.started,
+                      });
+                      return acc;
+                    },
+                    [{ value: -1, text: "Select Stage" }]
+                  )}
+                  onChange={(e) => {
+                    setData({
+                      ...data,
+                      stage: { value: Number(e.target.value) },
                     });
-                    return acc;
-                  },
-                  [{ value: -1, text: "Select Stage" }]
-                )}
-                onChange={(e) => {
-                  setData({
-                    ...data,
-                    stage: { value: Number(e.target.value) },
-                  });
-                }}
-              />
-            </EuiFormRow>
-            <EuiFormRow label="Supplier">
-              <EuiSelect
-                name="supplier"
-                disabled={data.stage.value === -1}
-                options={stageSupplData.reduce(
-                  (acc, i) => {
-                    const o = { value: i.addr, text: i.addr };
-                    acc.push(o);
-                    return acc;
-                  },
-                  [{ value: null, text: "Select Supplier" }]
-                )}
-                value={data.supplier}
-                onChange={(e) => {
-                  setData({ ...data, [e.target.name]: e.target.value });
-                }}
-              />
-            </EuiFormRow>
-            <EuiFormRow label="Signer">
-              <EuiSelect
-                name="signer"
-                disabled={data.stage.value === -1}
-                options={stageSigData.reduce(
-                  (acc, i) => {
-                    const o = { value: i.addr, text: i.addr };
-                    acc.push(o);
-                    return acc;
-                  },
-                  [{ value: null, text: "Select Signer" }]
-                )}
-                value={data.signer}
-                onChange={(e) => {
-                  setData({ ...data, [e.target.name]: e.target.value });
-                }}
-              />
-            </EuiFormRow>
-            <EuiFormRow label="Fee">
-              <EuiFieldNumber
-                name="fee"
-                disabled={data.stage.value === -1}
-                value={data.fee}
-                onChange={(e) => {
-                  setData({ ...data, [e.target.name]: e.target.value });
-                }}
-              />
-            </EuiFormRow>
-            <EuiFormRow>
-              <EuiButton
-                color="primary"
-                disabled={
-                  data.stage.value === -1 || !data.supplier || !data.signer
-                }
-                iconType="plus"
-                onClick={() => {
-                  tx(
-                    nftContract.startStage(
-                      data.id,
-                      data.stage.value,
-                      data.supplier,
-                      data.signer,
-                      data.fee
-                    )
-                  );
-
-                  setTimeout(async () => {
-                    const response = await loadStageStatus(
-                      nftContract,
-                      stages,
-                      id
+                  }}
+                />
+              </EuiFormRow>
+              <EuiFormRow label="Supplier">
+                <EuiSelect
+                  name="supplier"
+                  disabled={data.stage.value === -1}
+                  options={stageSupplData.reduce(
+                    (acc, i) => {
+                      const o = { value: i.addr, text: i.addr };
+                      acc.push(o);
+                      return acc;
+                    },
+                    [{ value: null, text: "Select Supplier" }]
+                  )}
+                  value={data.supplier}
+                  onChange={(e) => {
+                    setData({ ...data, [e.target.name]: e.target.value });
+                  }}
+                />
+              </EuiFormRow>
+              <EuiFormRow label="Signer">
+                <EuiSelect
+                  name="signer"
+                  disabled={data.stage.value === -1}
+                  options={stageSigData.reduce(
+                    (acc, i) => {
+                      const o = { value: i.addr, text: i.addr };
+                      acc.push(o);
+                      return acc;
+                    },
+                    [{ value: null, text: "Select Signer" }]
+                  )}
+                  value={data.signer}
+                  onChange={(e) => {
+                    setData({ ...data, [e.target.name]: e.target.value });
+                  }}
+                />
+              </EuiFormRow>
+              <EuiFormRow label="Fee">
+                <EuiFieldNumber
+                  name="fee"
+                  disabled={data.stage.value === -1}
+                  value={data.fee}
+                  onChange={(e) => {
+                    setData({ ...data, [e.target.name]: e.target.value });
+                  }}
+                />
+              </EuiFormRow>
+              <EuiFormRow>
+                <EuiButton
+                  color="primary"
+                  disabled={
+                    data.stage.value === -1 || !data.supplier || !data.signer
+                  }
+                  iconType="plus"
+                  onClick={() => {
+                    tx(
+                      nftContract.startStage(
+                        data.id,
+                        data.stage.value,
+                        data.supplier,
+                        data.signer,
+                        data.fee
+                      )
                     );
-                    setStatusData(response);
-                  }, 3000);
-                }}
-              >
-                Start
-              </EuiButton>
-            </EuiFormRow>
-          </EuiForm>
-        </EuiFlexItem>
+
+                    setTimeout(async () => {
+                      const response = await loadStageStatus(
+                        nftContract,
+                        stages,
+                        id
+                      );
+                      setStatusData(response);
+                    }, 3000);
+                  }}
+                >
+                  Start
+                </EuiButton>
+              </EuiFormRow>
+            </EuiForm>
+          </EuiFlexItem>
+        )}
         <EuiFlexItem>
           Stages
           <EuiBasicTable
@@ -283,6 +289,27 @@ export default function MainStage(props) {
             items={stagesFull}
             style={{ marginLeft: 40, marginTop: 30 }}
           />
+          <EuiButton
+            color="primary"
+            disabled={areAllStagesComplete}
+            onClick={() => {
+              tx(nftContract.completeFinalStage(data.id, statusData.length));
+
+              setTimeout(async () => {
+                const response = await loadStageStatus(nftContract, stages, id);
+                setStatusData(response);
+              }, 3000);
+            }}
+          >
+            Finalize!
+          </EuiButton>
+          {areAllStagesComplete ? (
+            <p style={{ paddingTop: "20px" }}>
+              <h2 style={{ fontSize: "25px" }}>
+                🎉 hooray, you can now sell/transfer the NFT
+              </h2>
+            </p>
+          ) : null}
         </EuiFlexItem>
       </EuiFlexGroup>
       {selectedStage && (
