@@ -19,6 +19,7 @@ import {
   euiDragDropReorder,
   EuiHorizontalRule,
 } from "@elastic/eui";
+import Blockies from "react-blockies";
 //import SipplyChainAsNFT ABI
 import { abi } from "../../../constants";
 import Container from "../../../components/Styled/Container";
@@ -40,6 +41,24 @@ async function loadData(nftContract) {
   return tableFormat;
 }
 
+async function loadStageData(nftContract, selectedStage) {
+  const stageSigsData = await nftContract.getStageSignatories(selectedStage);
+  const stageSuppliersData = await nftContract.getStageSuppliers(selectedStage);
+  if (
+    !stageSigsData ||
+    !stageSigsData.length ||
+    !stageSuppliersData ||
+    !stageSuppliersData.length
+  ) {
+    return { stageSignatories: [], stageSuppliers: [] };
+  }
+
+  return {
+    stageSignatories: stageSigsData.map((item) => ({ addr: item })),
+    stageSuppliers: stageSuppliersData.map((item) => ({ addr: item })),
+  };
+}
+
 export default function MainContract(props) {
   const {
     userAddress,
@@ -50,6 +69,8 @@ export default function MainContract(props) {
   } = props;
   const [data, setData] = useState({ name: "" });
   const [stages, setStages] = useState([]);
+  const [stageSupplData, setStageSuppliersData] = useState([]);
+  const [stageSigData, setStageSigData] = useState([]);
   const [selectedStage, setSelectedStage] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -105,6 +126,19 @@ export default function MainContract(props) {
     getStages();
   }, [injectedProvider]);
 
+  useEffect(() => {
+    async function getStageData() {
+      const stageId =
+        Number(
+          selectedStage.slice(selectedStage.indexOf("_", 1)).replace("_", "")
+        ) + 1;
+      const data = await loadStageData(nftContract, stageId);
+      setStageSigData(data?.stageSignatories);
+      setStageSuppliersData(data?.stageSuppliers);
+    }
+    getStageData();
+  }, [selectedStage]);
+
   async function uploadData() {
     // loop over each stage, then loop over each signatory
     setLoading(true);
@@ -126,6 +160,13 @@ export default function MainContract(props) {
       );
       console.log("added signatory " + result);
     }
+
+    // hacking the reload since it might take a second for hardhat to commit
+    setTimeout(async () => {
+      const data = await loadStageData(nftContract, stageId);
+      setStageSigData(data?.stageSignatories);
+      setStageSuppliersData(data?.stageSuppliers);
+    }, 2000);
     setLoading(false);
   }
 
@@ -155,6 +196,48 @@ export default function MainContract(props) {
           {item.slice(0, item.indexOf("_"))}
         </EuiLink>
       ),
+    },
+  ];
+
+  const stageSigColumns = [
+    {
+      field: "addr",
+      name: "Blockie",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return <Blockies seed={item?.toLowerCase()} size={16} scale={4} />;
+      },
+    },
+    {
+      field: "addr",
+      name: "Address",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return item;
+      },
+    },
+  ];
+
+  const stageSupplColumns = [
+    {
+      field: "addr",
+      name: "Blockie",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return <Blockies seed={item?.toLowerCase()} size={16} scale={4} />;
+      },
+    },
+    {
+      field: "addr",
+      name: "Address",
+      sortable: true,
+      truncateText: false,
+      render: (item) => {
+        return item;
+      },
     },
   ];
 
@@ -210,6 +293,23 @@ export default function MainContract(props) {
         <EuiSpacer />
         <EuiSpacer />
         <EuiSpacer />
+
+        {selectedStage && (
+          <>
+            Signatories:
+            <EuiBasicTable
+              columns={stageSigColumns}
+              items={stageSigData}
+              style={{ marginLeft: 40, marginTop: 30, width: "100%" }}
+            />
+            Suppliers:
+            <EuiBasicTable
+              columns={stageSupplColumns}
+              items={stageSupplData}
+              style={{ marginLeft: 40, marginTop: 30, width: "100%" }}
+            />
+          </>
+        )}
 
         {selectedStage && (
           <EuiText>
