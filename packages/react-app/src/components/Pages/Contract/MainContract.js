@@ -178,7 +178,7 @@ export default function MainContract(props) {
       const data = await loadStageData(nftContract, stageId);
       setStageSigData(data?.stageSignatories);
       setStageSuppliersData(data?.stageSuppliers);
-    }, 2000);
+    }, 3000);
     setLoading(false);
   }
 
@@ -304,7 +304,7 @@ export default function MainContract(props) {
                       setTimeout(async () => {
                         const reloadedData = await loadData(nftContract);
                         setStages(reloadedData);
-                      }, 2000);
+                      }, 3000);
                     }}
                   >
                     Add New Stage
