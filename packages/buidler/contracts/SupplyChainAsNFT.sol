@@ -8,13 +8,11 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     using SafeMath for uint256;
 
     event TokenLimitSet(uint256 tokenLimit);
-
     event StageStarted(uint256 token, uint256 stage);
     event StageCompleted(uint256 token, uint256 stage);
     event FinalStageCompleted(uint256 token, uint256 stage);
     event FinalStageReady(uint256 token, uint256 stage);
     event StageAdded(uint256 id, string name);
-
     event TokenStageDocumentAdded(
         uint256 token,
         uint256 stage,
@@ -28,30 +26,27 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         uint256 stage,
         uint256 amount
     );
+    event SupplierWithdrewBalance(address receiver, uint256 amount);
+
+    mapping(address => uint256) public OwedBalances;
 
     bool private tokenLimitSet;
     uint256 private _stageCount;
 
     mapping(uint256 => ChainStage) private _chainStages;
-    mapping(address => uint256) public OwedBalances;
 
     mapping(uint256 => address[]) private _chainStageSignatories;
     mapping(uint256 => address[]) private _chainStageSuppliers;
 
-    // token -> stage -> documents[]
     mapping(uint256 => mapping(uint256 => string[]))
         private _chainStageDocuments;
-
     mapping(uint256 => mapping(address => bool))
         private _chainStageSignatoriesExist;
-
     mapping(uint256 => mapping(address => bool))
         private _chainStageSuppliersExist;
-
     mapping(uint256 => mapping(uint256 => mapping(string => bool)))
         private _chainStageDocumentsExist;
 
-    // token -> stage-> complete
     mapping(uint256 => mapping(uint256 => ChainStageState))
         private _tokenStageStates;
 
@@ -66,6 +61,12 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         bool isComplete;
         address supplier;
         address signatory;
+    }
+
+    struct AddressStageView {
+        uint256 token;
+        uint256 stage;
+        uint256 supplierFee;
     }
 
     constructor(
@@ -89,8 +90,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         revert("");
     }
 
-    event LogSupplierPaid(address receiver, uint256 amount);
-
     /// @notice Withdraws the balance associated to the owner
     /// @dev deliberately not checking isOwner as you may have been removed but should still get your funds
     /// @dev setting balance to zero before send to prevent re-entry in case it is a contract address
@@ -102,13 +101,59 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         _msgSender().transfer(balanceToSend);
 
-        emit LogSupplierPaid(_msgSender(), balanceToSend);
+        emit SupplierWithdrewBalance(_msgSender(), balanceToSend);
     }
 
-    struct AddressStageView {
-        uint256 token;
-        uint256 stage;
-        uint256 supplierFee;
+    function allStagesHaveSuppliersAndSignatories() private view {
+        for (uint256 i = 1; i <= _stageCount; i++) {
+            require(_chainStageSuppliers[i].length > 0, "missing suppliers");
+            require(
+                _chainStageSignatories[i].length > 0,
+                "missing signatories"
+            );
+        }
+    }
+
+    function getStages() public view returns (string[] memory stages) {
+        string[] memory safeStages = new string[](_stageCount);
+
+        for (uint256 i = 0; i < _stageCount; i++) {
+            if (!isSafeString(_chainStages[i].name)) {
+                safeStages[i] = "***";
+            } else {
+                safeStages[i] = _chainStages[i].name;
+            }
+        }
+
+        stages = safeStages;
+    }
+
+    function getStageSuppliers(uint256 stage)
+        public
+        view
+        returns (address[] memory stages)
+    {
+        require(stage > 0 && stage <= _stageCount, "Out of bounds");
+
+        return _chainStageSuppliers[stage];
+    }
+
+    function getStageSignatories(uint256 stage)
+        public
+        view
+        returns (address[] memory stages)
+    {
+        return _chainStageSignatories[stage];
+    }
+
+    function getTokenStageDocuments(uint256 token, uint256 stage)
+        public
+        view
+        returns (string[] memory documents)
+    {
+        require(stage > 0 && stage <= _stageCount, "Out of bounds");
+
+        return _chainStageDocuments[token][stage];
     }
 
     function getSignatoryView()
@@ -266,16 +311,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         emit StageStarted(token, stage);
     }
 
-    function allStagesHaveSuppliersAndSignatories() private view {
-        for (uint256 i = 1; i <= _stageCount; i++) {
-            require(_chainStageSuppliers[i].length > 0, "missing suppliers");
-            require(
-                _chainStageSignatories[i].length > 0,
-                "missing signatories"
-            );
-        }
-    }
-
     function completeFinalStage(uint256 token, uint256 stage) public payable {
         require(_stageCount == stage, "not final");
         require(currentTokenMintCount >= token, "no token");
@@ -319,20 +354,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         }
     }
 
-    function getStages() public view returns (string[] memory stages) {
-        string[] memory safeStages = new string[](_stageCount);
-
-        for (uint256 i = 0; i < _stageCount; i++) {
-            if (!isSafeString(_chainStages[i].name)) {
-                safeStages[i] = "***";
-            } else {
-                safeStages[i] = _chainStages[i].name;
-            }
-        }
-
-        stages = safeStages;
-    }
-
     function addStageSupplier(uint256 stage, address addr) public {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
 
@@ -342,16 +363,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         _chainStageSuppliersExist[stage][addr] = true;
 
         emit SupplierAdded(stage, addr);
-    }
-
-    function getStageSuppliers(uint256 stage)
-        public
-        view
-        returns (address[] memory stages)
-    {
-        require(stage > 0 && stage <= _stageCount, "Out of bounds");
-
-        return _chainStageSuppliers[stage];
     }
 
     function addStage(string memory name) public {
@@ -372,24 +383,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
         _chainStageSignatories[stage].push(addr);
         _chainStageSignatoriesExist[stage][addr] = true;
-    }
-
-    function getStageSignatories(uint256 stage)
-        public
-        view
-        returns (address[] memory stages)
-    {
-        return _chainStageSignatories[stage];
-    }
-
-    function getTokenStageDocuments(uint256 token, uint256 stage)
-        public
-        view
-        returns (string[] memory documents)
-    {
-        require(stage > 0 && stage <= _stageCount, "Out of bounds");
-
-        return _chainStageDocuments[token][stage];
     }
 
     function addTokenStageDocument(
