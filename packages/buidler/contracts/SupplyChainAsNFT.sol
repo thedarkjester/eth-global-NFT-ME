@@ -267,7 +267,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     ) public payable {
         require(_stageCount >= stage, "no stage");
         require(currentTokenMintCount >= token, "no token");
-
         require(!_tokenStageStates[token][stage].hasStarted, "Stage started");
         require(!_tokenStageStates[token][stage].isComplete, "Stage complete");
 
@@ -276,7 +275,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         }
 
         require(_chainStageSignatoriesExist[stage][signatory], "not signatory");
-
         require(_chainStageSuppliersExist[stage][supplier], "not supplier");
 
         allStagesHaveSuppliersAndSignatories();
@@ -331,11 +329,15 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
     }
 
     function completeStage(uint256 token, uint256 stage) private {
-        emit StageCompleted(token, stage);
-
         _tokenStageStates[token][stage].isComplete = true;
 
         if (_tokenStageStates[token][stage].supplierFee > 0) {
+            OwedBalances[
+                _tokenStageStates[token][stage].supplier
+            ] = OwedBalances[_tokenStageStates[token][stage].supplier].add(
+                msg.value
+            );
+
             emit SupplierPaid(
                 _tokenStageStates[token][stage].supplier,
                 token,
@@ -344,10 +346,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
             );
         }
 
-        OwedBalances[_tokenStageStates[token][stage].supplier] = OwedBalances[
-            _tokenStageStates[token][stage].supplier
-        ]
-            .add(msg.value);
+        emit StageCompleted(token, stage);
 
         if (stage == _stageCount - 1) {
             emit FinalStageReady(token, _stageCount);
@@ -356,7 +355,6 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     function addStageSupplier(uint256 stage, address addr) public {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
-
         require(stage > 0 && stage <= _stageCount, "Out of bounds");
 
         _chainStageSuppliers[stage].push(addr);
@@ -367,18 +365,17 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
 
     function addStage(string memory name) public {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
-
         require(currentTokenMintCount == 0, "tokens minted");
 
         _chainStages[_stageCount].id = _stageCount + 1;
         _chainStages[_stageCount].name = name;
-        emit StageAdded(_stageCount + 1, name);
         _stageCount++;
+
+        emit StageAdded(_stageCount, name);
     }
 
     function addStageSignatory(uint256 stage, address addr) public {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "not admin");
-
         require(stage > 0 && stage <= _stageCount, "Out of bounds");
 
         _chainStageSignatories[stage].push(addr);
