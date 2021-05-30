@@ -24,6 +24,7 @@ import {
 
 import { ethers } from "ethers";
 import { abi } from "../../../constants";
+import StageView from "./StageView";
 
 import Container from "../../../components/Styled/Container";
 
@@ -45,10 +46,17 @@ async function loadStageData(nftContract, selectedStage) {
   };
 }
 
+async function loadStageStatus(nftContract, stages, id) {
+  const promises = JSON.parse(stages).map((i) => {
+    return nftContract.getTokenStageState(id, i.id);
+  });
+  return await Promise.all(promises);
+}
 export default function MainStage(props) {
   const [stageSupplData, setStageSuppliersData] = useState([]);
   const [stageSigData, setStageSigData] = useState([]);
   const [statusData, setStatusData] = useState([]);
+  const [selectedStage, setSelectedStage] = useState(null);
   const { id, contract } = useParams();
   const { userAddress, tx, injectedProvider } = props;
 
@@ -92,11 +100,9 @@ export default function MainStage(props) {
 
   useEffect(() => {
     async function t() {
-      const promises = JSON.parse(stages).map((i) => {
-        return nftContract.getTokenStageState(id, i.id);
-      });
-      const v = await Promise.all(promises);
-      setStatusData(v);
+      const response = await loadStageStatus(nftContract, stages, id);
+      console.log(">>>>>", response);
+      setStatusData(response);
     }
     t();
   }, []);
@@ -127,6 +133,11 @@ export default function MainStage(props) {
       field: "name",
       name: "name",
       sortable: true,
+      render: (val, obj) => (
+        <a onClick={() => setSelectedStage({ id: obj.id, name: obj.name })}>
+          {val}
+        </a>
+      ),
     },
     {
       field: "started",
@@ -249,6 +260,15 @@ export default function MainStage(props) {
                       data.fee
                     )
                   );
+
+                  setTimeout(async () => {
+                    const response = await loadStageStatus(
+                      nftContract,
+                      stages,
+                      id
+                    );
+                    setStatusData(response);
+                  }, 3000);
                 }}
               >
                 Start
@@ -265,6 +285,21 @@ export default function MainStage(props) {
           />
         </EuiFlexItem>
       </EuiFlexGroup>
+      {selectedStage && (
+        <>
+          <h3>{selectedStage.name} Stage</h3>
+          <StageView
+            tx={tx}
+            tokenId={id}
+            contractAddress={contractAddress}
+            injectedProvider={injectedProvider}
+            selectedStage={{
+              ...selectedStage,
+              supplierAddr: statusData[selectedStage.id - 1]?.supplier,
+            }}
+          />
+        </>
+      )}
     </Container>
   );
 }
