@@ -72,6 +72,7 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         address owner
     ) public ERC721MinterPauser(name, symbol) {
         _setupRole(DEFAULT_ADMIN_ROLE, owner);
+        _setupRole(MINTER_ROLE, owner);
     }
 
     /// @notice Default fallback for non-data related deposits
