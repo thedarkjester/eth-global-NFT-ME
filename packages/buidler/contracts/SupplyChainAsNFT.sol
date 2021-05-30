@@ -264,6 +264,10 @@ contract SupplyChainAsNFT is ERC721MinterPauser {
         _tokenStageStates[token][stage].hasStarted = true;
 
         emit StageStarted(token, stage);
+
+        if (stage == 1 && _stageCount == 1) {
+            emit FinalStageReady(token, _stageCount);
+        }
     }
 
     function allStagesHaveSuppliersAndSignatories() private view {
