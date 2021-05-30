@@ -315,6 +315,11 @@ export default function MainContract(props) {
                     style={{ marginLeft: 30 }}
                     onClick={async () => {
                       await tx(nftContract.mint(userAddress));
+
+                      setTimeout(async () => {
+                        const newTokenList = await loadSupplyData(nftContract);
+                        setTokenList(newTokenList);
+                      }, 3000);
                     }}
                   >
                     Mint
