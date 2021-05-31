@@ -110,8 +110,6 @@ export default function MainStage(props) {
       }
     }
   }
-  console.log(JSON.parse(stages));
-  console.log("ADSFDSFADSFASD F", statusData);
   const stagesFull = JSON.parse(stages).map((item, index) => {
     const o = {
       id: item.id,
@@ -142,7 +140,6 @@ export default function MainStage(props) {
       //   render: (item) => <span>{item}</span>,
     },
   ];
-  console.log(stagesFull);
   return (
     <Container>
       {/* {id} {contract} {stages} */}
